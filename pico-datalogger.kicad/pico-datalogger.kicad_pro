@@ -13,7 +13,9 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [],
+    "erc_exclusions": [
+      "power_pin_not_driven|850900|414020|f63b979c-230c-4e94-a89f-49a2a7f8c574|00000000-0000-0000-0000-000000000000"
+    ],
     "meta": {
       "version": 0
     },
@@ -222,7 +224,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "pico-en-control.kicad_pro",
+    "filename": "pico-datalogger.kicad_pro",
     "version": 1
   },
   "net_settings": {
