@@ -18,7 +18,7 @@ From a technical viewpoint the breakout allows you to
 Hardware Components
 -------------------
 
-Time-keeping uses the PCF8523 RTC with its integrated suport for a backup-battery.
+Time-keeping uses the PCF8523 RTC with its integrated support for a backup-battery.
 
 Powermanagement uses a D-type flip-flop which drives the enable pin of the Pico.
 In "reset"-state, the enable pin is pulled high and the Pico is running. The
