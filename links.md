@@ -57,4 +57,8 @@ need some rework on the pcb.
 Software
 --------
 
+To follow.
 
+Background
+----------
+For background on / motivation for this project, please see https://opendeved.net/programmes/ilce-in-tanzania/.
