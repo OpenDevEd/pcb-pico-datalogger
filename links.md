@@ -6,7 +6,10 @@ This is a collection of links to products, datasheets, documentation and so on.
 Datasheets for hardware used in conjunction with the board
 ----------------------------------------------------------
 
+Required:
 - Raspberry Pi Pico or Pico W (https://www.raspberrypi.com/products/raspberry-pi-pico/) or a pin-compatible device, such as the [Pico Lipo](https://shop.pimoroni.com/products/pimoroni-pico-lipo) is required for the operation of the board. Details on which device to chose are below.
+
+Optional:
 - Adafruit RFM96W LoRa Radio Transceiver Breakout - 433 MHz - RadioFruit:  
   <https://www.adafruit.com/product/3073>
   This is optional. It is used for offloading data from the Pico to a 'base station'. If you have public LoRa gateways where you are, you can also use one of those gateways.
@@ -14,9 +17,8 @@ Datasheets for hardware used in conjunction with the board
 - Pico Inky Pack:  
   <https://shop.pimoroni.com/products/pico-inky-pack>
   Optional. Used to shows sensor data.
-  This is optional.
 
-The board is intended to be used with I2C sensors. We have not finalised the selection of sensors, but are trialling:
+The board is intended to be used mainly with I2C sensors. We have not finalised the selection of sensors, but are evaluating the following sensors:
 - AHT20 (temperature and humidity), [Adafruit with Qw/ST](https://www.adafruit.com/product/4566), [data sheet](https://cdn-learn.adafruit.com/assets/assets/000/091/676/original/AHT20-datasheet-2020-4-16.pdf?1591047915), I2C address 0x38
 - Asair AM2301B in enclosure [datasheet](https://cdn-shop.adafruit.com/product-files/5181/5181_AM2301B.pdf), I2C address 0x38
 - SHT45 (temperature and humidity), https://sensirion.com/products/catalog/SHT45/
