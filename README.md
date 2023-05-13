@@ -9,9 +9,9 @@ Core functions:
 
 From a technical viewpoint the breakout allows you to
   * turn on the system using a button or
-  * use a RTC-alarm to trigger wakup
-  * turn off the system using a dedicated digital-io
-  * power the system from a lipo or battery-pack
+  * use a RTC-alarm to trigger wakup,
+  * turn off the system using a dedicated digital-io,
+  * power the system from a lipo or battery-pack,
   * keep time using a coincell backup-battery even if the board is not powered.
 
 
