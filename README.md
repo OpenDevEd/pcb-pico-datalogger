@@ -31,6 +31,10 @@ A micro-sd card reader is connected to SPI to enable logging of data.
 
 Various additional connectors allow the user to connect sensors or displays.
 
+Background
+----------
+
+For background on / motivation for this project, please see https://opendeved.net/programmes/ilce-in-tanzania/.
 
 License
 -------
