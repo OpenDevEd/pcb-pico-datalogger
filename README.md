@@ -20,7 +20,7 @@ Hardware Components
 
 Time-keeping uses the PCF8523 RTC with integrated support for a backup-battery.
 
-Powermanagement uses a D-type flip-flop which drives the enable pin of the Pico.
+Power management uses a D-type flip-flop which drives the enable pin of the Pico.
 In "reset"-state, the enable pin is pulled high and the Pico is running. The
 reset is triggered either by a button, or by an RTC-alarm.
 
