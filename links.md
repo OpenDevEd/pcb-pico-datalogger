@@ -8,8 +8,10 @@ Datasheets for hardware used in conjunction with the board
 
 - Raspberry Pi Pico or Pico W (https://www.raspberrypi.com/products/raspberry-pi-pico/) or a pin-compatible device, such as the (Pico Lipo)[https://shop.pimoroni.com/products/pimoroni-pico-lipo] is required for the operation of the board.
   - If you 'offload data' via LoRa, you can use the Pico;
-  - If you want more storage (for operation without 'data offloading'), use the Pico Lipo (4 MB or 16 MB);
   - If you need WiFi (instead of LoRa or in addition to LoRa), use the Pico W;
+  - The Pico has only provided 848 kB with MicroPython installed, much of which will be taken up by software. If you do not 'offload data', you need want more storage.
+    -  You can either use the SD card as part of our design (for operation without 'data offloading'),
+    -  or, if you do not need WiFi, and your storage needs are only a few MB, you can use the Pico Lipo (4 MB or 16 MB).
 - Adafruit RFM96W LoRa Radio Transceiver Breakout - 433 MHz - RadioFruit:  
   <https://www.adafruit.com/product/3073>
   This is optional. It is used for offloading data from the Pico to a 'base station'. If you have public LoRa gateways where you are, you can also use one of those gateways.
