@@ -12,7 +12,7 @@ From a technical viewpoint the breakout allows you to
   * use a RTC-alarm to trigger wakup
   * turn off the system using a dedicated digital-io
   * power the system from a lipo or battery-pack
-  * keep time using a coincell backup-battery even if the board is not powered
+  * keep time using a coincell backup-battery even if the board is not powered.
 
 
 Hardware Components
