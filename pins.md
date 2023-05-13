@@ -7,15 +7,15 @@ Reserved
 
 |              | Pin  | Pin  |
 |--------------|------|------|-------------------------
-| (UART-TX)    | GP0  | VBUS |
-| (UART-RX)    | GP1  | VSYS |
+| UART-TX ext  | GP0  | VBUS |
+| UART-RX ext  | GP1  | VSYS |
 |              | GND  | GND  |
 | SDA          | GP2  | EN   |
 | SCL          | GP3  | 3V3  |
 | DONE         | GP4  | VREF |
 | I2S (BCLK)   | GP5  | GP28 | I2S (DOUT)
 |              | GND  | GND  |
-| I2S (LRCL)   | GP6  | GP27 |
+| I2S (LRCL)   | GP6  | GP27 | ADC ext
 | Lora-RST     | GP7  | GP26 | Inky Busy
 | MISO1 (Lora) | GP8  | RUN  | Inky Run
 | Lora-CS      | GP9  | GP22 | SD-CS
