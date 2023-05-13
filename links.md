@@ -16,7 +16,8 @@ Optional:
   *Important:* We are selecting the 433 MHz version of this board, as this is the appropriate frequency for Tanzania. There is an 868 / 915 MHz version available https://www.adafruit.com/product/3072.
 - Pico Inky Pack:  
   <https://shop.pimoroni.com/products/pico-inky-pack>
-  Optional. Used to shows sensor data.
+  Used to shows sensor data.
+- A micro-SD card
 
 The board is intended to be used mainly with I2C sensors. We have not finalised the selection of sensors, but are evaluating the following sensors:
 - AHT20 (temperature and humidity), [Adafruit with Qw/ST](https://www.adafruit.com/product/4566), [data sheet](https://cdn-learn.adafruit.com/assets/assets/000/091/676/original/AHT20-datasheet-2020-4-16.pdf?1591047915), I2C address 0x38
