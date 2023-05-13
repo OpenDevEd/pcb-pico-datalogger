@@ -10,6 +10,7 @@ Datasheets for hardware used in conjunction with the board
 - Adafruit RFM96W LoRa Radio Transceiver Breakout - 433 MHz - RadioFruit:  
   <https://www.adafruit.com/product/3073>
   This is optional. It is used for offloading data from the Pico to a 'base station'. If you have public LoRa gateways where you are, you can also use one of those gateways.
+  *Important:* We are selecting the 433 MHz version of this board, as this is the appropriate frequency for Tanzania. There is an 868 / 915 MHz version available https://www.adafruit.com/product/3072.
 - Pico Inky Pack:  
   <https://shop.pimoroni.com/products/pico-inky-pack>
   Optional. Used to shows sensor data.
