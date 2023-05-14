@@ -7,7 +7,7 @@ Datasheets for hardware used in conjunction with the board
 ----------------------------------------------------------
 
 Required:
-- Raspberry Pi Pico or Pico W (https://www.raspberrypi.com/products/raspberry-pi-pico/) or a pin-compatible device, such as the [Pico Lipo](https://shop.pimoroni.com/products/pimoroni-pico-lipo) is required for the operation of the board. Details on which device to chose are below.
+- Raspberry Pi Pico or Pico W (https://www.raspberrypi.com/products/raspberry-pi-pico/) or a pin-compatible device, such as the [Pico Lipo](https://shop.pimoroni.com/products/pimoroni-pico-lipo), is required for the operation of the board. Details on which device to chose are below.
 
 Optional:
 - Adafruit RFM96W LoRa Radio Transceiver Breakout - 433 MHz - RadioFruit:  
