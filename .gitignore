@@ -21,3 +21,6 @@ TODO
 
 boot_out.txt
 lib
+*.pyc
+*secrets.py
+__pycache__
