@@ -36,6 +36,10 @@ Background
 
 For background on / motivation for this project, please see https://opendeved.net/programmes/ilce-in-tanzania/.
 
+Additional resources
+--------------------
+* Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev0.98
+
 License
 -------
 
