@@ -28,11 +28,6 @@ import adafruit_sdcard
 import busio
 from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
 
-# imports for sensors
-import adafruit_ahtx0          # AHT20
-import adafruit_mcp9808
-from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
-
 # --- configuration   --------------------------------------------------------
 
 TEST_MODE   = False       # set to FALSE for a productive setup
@@ -84,10 +79,13 @@ class DataCollector():
 
     # sensors
     if HAVE_AHT20:
+      import adafruit_ahtx0
       self.aht20 = adafruit_ahtx0.AHTx0(i2c)
     if HAVE_LTR559:
+      from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
       self.ltr559 = Pimoroni_LTR559(i2c)
     if HAVE_MCP9808:
+      import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
 
     # spi - SD-card and display
