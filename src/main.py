@@ -42,6 +42,7 @@ HAVE_DISPLAY = False
 HAVE_AHT20   = True
 HAVE_LTR559  = False
 HAVE_MCP9808 = False
+HAVE_ENS160  = True
 
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
@@ -78,15 +79,23 @@ class DataCollector():
     self.done.value     = 0
 
     # sensors
+    self._sensors = [self.read_battery]    # list of readout-methods
     if HAVE_AHT20:
       import adafruit_ahtx0
       self.aht20 = adafruit_ahtx0.AHTx0(i2c)
+      self._sensors.append(self.read_aht20)
     if HAVE_LTR559:
       from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
       self.ltr559 = Pimoroni_LTR559(i2c)
+      self._sensors.append(self.read_ltr559)
     if HAVE_MCP9808:
       import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
+      self._sensors.append(self.read_mcp9808)
+    if HAVE_ENS160:
+      import adadruit_ens160
+      self.ens160 = adafruit_ens160.ENS160(i2)
+      self._sensors.append(self.read_ens160)
 
     # spi - SD-card and display
     if HAVE_SD:
@@ -116,13 +125,8 @@ class DataCollector():
       "ts":   ts_str
       }
     self.record = ts_str
-    self.read_battery()
-    if HAVE_AHT20:
-      self.read_AHT20()
-    if HAVE_LTR559:
-      self.read_LTR559()
-    if HAVE_MCP9808:
-      self.read_MCP9808()
+    for read_sensor in self._sensors:
+      read_sensor()
 
   # --- read battery level   -------------------------------------------------
 
@@ -163,6 +167,17 @@ class DataCollector():
       "temp": t
     }
     self.record += f",{t:0.1f}"
+
+  # --- read ENS160   --------------------------------------------------------
+
+  def read_ens160(self):
+    if HAVE_AHT20:
+      self.ens160.temperature_compensation = self.data["aht20"]["temp"]
+      self.ens160.humidity_compensation    = self.data["aht20"]["hum"]
+    data   = self.ens160.read_all_sensors()
+    status = self.ens160.data_validity
+    self.data["ens160"] = data
+    self.record += f",{status},{data['AQI']},{data['TVOC']},{data['eCO2']}"
 
   # --- save data   ----------------------------------------------------------
 
