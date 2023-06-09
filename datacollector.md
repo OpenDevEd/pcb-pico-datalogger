@@ -43,7 +43,17 @@ Configuration
 -------------
 
 There are some configuration constants in `src/main.py` which adjust the
-behavior (e.g. sensors, off-time).
+behavior (e.g. sensors, off-time). If you use a SD-card, these constants
+should not be changed within `src/main.py`, but should be overriden with
+a file named `config.py` on the SD-card. This allows different setups
+(e.g. sensors) without updating the program.
+
+Note that the default configuration configures the battery-level
+as the only "sensor".
+
+Most importantly, change the value of `LOGGER_ID`. The csv-file written
+by the datacollector will be named `<LOGGER_ID>.csv`. This way, every
+datalogger will create a file with a distinct name.
 
 You also have to provide a file `src/secrets.py` with your WLAN-credentials.
 Rename `src/sec_template.py` and adapt it to your environment:
