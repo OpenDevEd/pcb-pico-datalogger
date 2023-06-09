@@ -3,6 +3,8 @@ Pico Datalogger with Integrated Power-Management
 
 This is a breakout supporting low-frequency data-logging with a Raspberry Pi Pico.
 
+![](pcb1.jpg)
+
 Core functions:
   * log data to a micro-sd card;
   * software-controlled power-control with very low standby current.
@@ -19,6 +21,8 @@ Hardware Components
 -------------------
 
 Time-keeping uses the PCF8523 RTC with integrated support for a backup-battery.
+
+![](pcb2.jpg)
 
 Power management uses a D-type flip-flop which drives the enable pin of the Pico.
 In "reset"-state, the enable pin is pulled high and the Pico is running. The
@@ -42,12 +46,16 @@ A CircuitPython implementation for a datalogger-program is in the directory
 Background
 ----------
 
-For background on / motivation for this project, please see https://opendeved.net/programmes/ilce-in-tanzania/.
+For background on / motivation for this project, please see
+<https://opendeved.net/programmes/ilce-in-tanzania/>.
 
 
 Additional resources
 --------------------
-* Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev0.98
+
+  * [KiCAD design-files](pico-datalogger/)
+  * [Pinout](pins.md)
+  * Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev0.98
 
 
 License
