@@ -210,11 +210,10 @@ class DataCollector():
 
   def save_data(self):
     """ save data """
-    if not HAVE_SD:
-      return
-    with open(f"/sd/{LOGGER_ID}.csv", "a") as f:
-      print(self.record)
-      f.write(f"{self.record}\n")
+    print(self.record)
+    if HAVE_SD:
+      with open(f"/sd/{LOGGER_ID}.csv", "a") as f:
+        f.write(f"{self.record}\n")
   
   # --- update display   -----------------------------------------------------
 
