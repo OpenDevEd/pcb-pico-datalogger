@@ -28,7 +28,7 @@ import adafruit_sdcard
 import busio
 from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
 
-# --- configuration   --------------------------------------------------------
+# --- default configuration, override in config.py on sd-card   --------------
 
 TEST_MODE   = False       # set to FALSE for a productive setup
 NET_UPDATE  = True        # update RTC from time-server if time is invalid
@@ -37,12 +37,18 @@ BLINK_TIME  = 0.25        # blink time of LED
 BLINK_START = 0           # blink n times before start of data-collection
 BLINK_END   = 0           # blink n times after finish of data-collection
 
+FORCE_CONT_MODE       = False
+FORCE_SHUTDOWN_ON_USB = False
+CONT_INT              = 30          #  interval in continuous mode (in seconds)
+
 HAVE_SD      = True
 HAVE_DISPLAY = False
-HAVE_AHT20   = True
+HAVE_AHT20   = False
 HAVE_LTR559  = False
 HAVE_MCP9808 = False
-HAVE_ENS160  = True
+HAVE_ENS160  = False
+
+LOGGER_ID = 'data'
 
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
@@ -69,33 +75,12 @@ class DataCollector():
     self.rtc.rtc_ext.high_capacitance = True      # the pcb uses a 12.5pF capacitor
     self.rtc.update()                             # (time-server->)ext-rtc->int-rtc
 
-    # just for testing
-    if TEST_MODE:
-      self._led            = DigitalInOut(board.LED)
-      self._led.direction  = Direction.OUTPUT
-
     self.done           = DigitalInOut(PIN_DONE)
     self.done.direction = Direction.OUTPUT
     self.done.value     = 0
 
-    # sensors
-    self._sensors = [self.read_battery]    # list of readout-methods
-    if HAVE_AHT20:
-      import adafruit_ahtx0
-      self.aht20 = adafruit_ahtx0.AHTx0(i2c)
-      self._sensors.append(self.read_aht20)
-    if HAVE_LTR559:
-      from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
-      self.ltr559 = Pimoroni_LTR559(i2c)
-      self._sensors.append(self.read_ltr559)
-    if HAVE_MCP9808:
-      import adafruit_mcp9808
-      self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
-      self._sensors.append(self.read_mcp9808)
-    if HAVE_ENS160:
-      import adadruit_ens160
-      self.ens160 = adafruit_ens160.ENS160(i2)
-      self._sensors.append(self.read_ens160)
+    self.vbus_sense           = DigitalInOut(board.VBUS_SENSE)
+    self.vbus_sense.direction = Direction.INPUT
 
     # spi - SD-card and display
     if HAVE_SD:
@@ -104,16 +89,58 @@ class DataCollector():
       sdcard = adafruit_sdcard.SDCard(spi,cs)
       vfs    = storage.VfsFat(sdcard)
       storage.mount(vfs, "/sd")
+      try:
+        import sys
+        sys.path.append("/sd")
+        import config
+        for var in dir(config):
+          if var[0] != '_':
+            print(f"{var}={getattr(config,var)}")
+            globals()[var] = getattr(config,var)
+      except:
+        print("no configuration found in /sd/config.py")
+
+    # sensors
+    self._sensors = [self.read_battery]    # list of readout-methods
+    if HAVE_AHT20:
+      import adafruit_ahtx0
+      self.aht20 = adafruit_ahtx0.AHTx0(i2c)
+      self._sensors.append(self.read_AHT20)
+    if HAVE_LTR559:
+      from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
+      self.ltr559 = Pimoroni_LTR559(i2c)
+      self._sensors.append(self.read_LTR559)
+    if HAVE_MCP9808:
+      import adafruit_mcp9808
+      self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
+      self._sensors.append(self.read_MCP9808)
+    if HAVE_ENS160:
+      import adadruit_ens160
+      self.ens160 = adafruit_ens160.ENS160(i2)
+      self._sensors.append(self.read_ENS160)
+
+    # just for testing
+    if TEST_MODE:
+      self._led            = DigitalInOut(board.LED)
+      self._led.direction  = Direction.OUTPUT
 
   # --- blink   --------------------------------------------------------------
 
   def blink(self,count=1):
     for _ in range(count):
-      led.value = 1
+      self._led.value = 1
       time.sleep(BLINK_TIME)
-      led.value = 0
+      self._led.value = 0
       time.sleep(BLINK_TIME)
-    
+
+  # --- check for continuous-mode   ------------------------------------------
+
+  def continuous_mode(self):
+    """ returns false if on USB-power """
+
+    return FORCE_CONT_MODE or (
+            self.vbus_sense.value and not FORCE_SHUTDOWN_ON_USB)
+
   # --- collect data   -------------------------------------------------------
 
   def collect_data(self):
@@ -170,7 +197,7 @@ class DataCollector():
 
   # --- read ENS160   --------------------------------------------------------
 
-  def read_ens160(self):
+  def read_ENS160(self):
     if HAVE_AHT20:
       self.ens160.temperature_compensation = self.data["aht20"]["temp"]
       self.ens160.humidity_compensation    = self.data["aht20"]["hum"]
@@ -183,7 +210,9 @@ class DataCollector():
 
   def save_data(self):
     """ save data """
-    with open("/sd/data.csv", "a") as f:
+    if not HAVE_SD:
+      return
+    with open(f"/sd/{LOGGER_ID}.csv", "a") as f:
       print(self.record)
       f.write(f"{self.record}\n")
   
@@ -219,17 +248,25 @@ print("setup of hardware")
 app = DataCollector()
 app.setup()
 
-if TEST_MODE:
-  app.blink(count=BLINK_START)
+while True:
+  if TEST_MODE:
+    app.blink(count=BLINK_START)
 
-app.collect_data()
-app.save_data()
+  app.collect_data()
+  app.save_data()
 
-if TEST_MODE:
-  app.blink(count=BLINK_END)
+  if TEST_MODE:
+    app.blink(count=BLINK_END)
 
-if HAVE_DISPLAY:
-  app.update_display()
+  if HAVE_DISPLAY:
+    app.update_display()
+
+  # check if running on USB and sleep instead of shutdown
+  if app.continuous_mode():
+    print(f"continuous mode: next measurement in {CONT_INT} seconds")
+    time.sleep(CONT_INT)
+  else:
+    break
 
 app.configure_wakeup()
 app.shutdown()
