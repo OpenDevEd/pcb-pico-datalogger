@@ -43,6 +43,7 @@ CONT_INT              = 30          #  interval in continuous mode (in seconds)
 
 HAVE_SD      = True
 HAVE_DISPLAY = False
+HAVE_LORA    = False
 HAVE_AHT20   = False
 HAVE_LTR559  = False
 HAVE_MCP9808 = False
@@ -215,6 +216,12 @@ class DataCollector():
       with open(f"/sd/{LOGGER_ID}.csv", "a") as f:
         f.write(f"{self.record}\n")
   
+  # --- send data   ----------------------------------------------------------
+
+  def send_data(self):
+    """ send data using LORA """
+    print(f"not yet implemented!")
+
   # --- update display   -----------------------------------------------------
 
   def update_display(self):
@@ -259,6 +266,9 @@ while True:
 
   if HAVE_DISPLAY:
     app.update_display()
+
+  if HAVE_LORA:
+    app.send_data()
 
   # check if running on USB and sleep instead of shutdown
   if app.continuous_mode():
