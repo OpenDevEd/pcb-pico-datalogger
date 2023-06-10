@@ -40,7 +40,7 @@ Software
 --------
 
 A CircuitPython implementation for a datalogger-program is in the directory
-`src`. See [datalogger.md](datalogger.md) for details.
+`src`. See [datacollector.md](datacollector.md) for details.
 
 
 Background
@@ -53,7 +53,7 @@ For background on / motivation for this project, please see
 Additional resources
 --------------------
 
-  * [hardware_setup.md](hardware_setup.md)
+  * [Hardware setup](hardware_setup.md)
   * [KiCAD design-files](pico-datalogger/)
   * [Pinout](pins.md)
   * Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00
