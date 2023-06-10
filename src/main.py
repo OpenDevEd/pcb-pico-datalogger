@@ -339,7 +339,8 @@ class DataCollector():
     self.values.extend([None for _ in range(len(self._formats)-len(self.values))])
 
     self._view.set_values(self.values)
-    self._footer.text = f"Updated: {self.data['ts']}"
+    [dt, tm] = self.data['ts'].split('T')
+    self._footer.text = f"Updated: {dt[2:]} {tm[:-3]}"
     self.display.root_group = self._panel
     self.display.refresh()
 
