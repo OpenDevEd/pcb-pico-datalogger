@@ -54,7 +54,7 @@ HAVE_SD      = False
 HAVE_DISPLAY = True
 HAVE_LORA    = False
 HAVE_AHT20   = True
-HAVE_LTR559  = False
+HAVE_LTR559  = True
 HAVE_MCP9808 = True
 HAVE_ENS160  = False
 
@@ -145,24 +145,24 @@ class DataCollector():
       self.aht20 = adafruit_ahtx0.AHTx0(i2c)
       self._sensors.append(self.read_AHT20)
       self._formats.extend(
-        ["T1:", "{0:.1f}°C","H:", "{0:.0f}%rH"])
+        ["AHT20", "{0:.1f}°C","AHT20", "{0:.0f}%rH"])
     if HAVE_LTR559:
       from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
       self.ltr559 = Pimoroni_LTR559(i2c)
       self._sensors.append(self.read_LTR559)
-      self._formats.extend(["L:", "{0:.1f}Lux"])
+      self._formats.extend(["Light", "{0:.0f}L"])
     if HAVE_MCP9808:
       import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
       self._sensors.append(self.read_MCP9808)
-      self._formats.extend(["T2:", "{0:.1f}°C"])
+      self._formats.extend(["9808", "{0:.1f}°C"])
     if HAVE_ENS160:
       import adadruit_ens160
       self.ens160 = adafruit_ens160.ENS160(i2)
       self._sensors.append(self.read_ENS160)
-      self._formats.extend(["AQI (ENS160):", "{0}"])
-      self._formats.extend(["TVOC (ENS160):", "{0} ppb"])
-      self._formats.extend(["eCO2 (ENS160):", "{0} ppm eq."])
+      self._formats.extend(["AQI", "{0}"])
+      self._formats.extend(["TVOC", "{0} ppb"])
+      self._formats.extend(["eCO2", "{0} ppm eq."])
 
     # just for testing
     if TEST_MODE:
