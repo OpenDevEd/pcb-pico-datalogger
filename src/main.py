@@ -71,9 +71,11 @@ HAVE_MIC_PDM_MEMS = True
 HAVE_PCB     = True
 
 LOGGER_NAME  = 'Darasa Kamili'  # Perfect Classroom
-LOGGER_ID    = 'N/A'            # Change this to your logger id
+LOGGER_ID    = '000'            # Change this to your logger id
 LOGGER_LOCATION = '6G5X46G4+XQ' # Plus Code for Dar airport
 LOGGER_TITLE = LOGGER_NAME + " " + LOGGER_LOCATION
+
+YMD = "YYYY-MM-DD"
 
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
@@ -259,6 +261,7 @@ class DataCollector():
 
     ts = time.localtime()
     ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
+    YMD = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}"
     print(ts)
     self.data = {
       "ts":   ts_str
@@ -332,10 +335,15 @@ class DataCollector():
   def save_data(self):
     """ save data """
     print(self.record)
+    outfile = f"log_{LOGGER_ID}-{YMD}.csv"
     if HAVE_SD:
-      with open(f"/sd/{LOGGER_ID}.csv", "a") as f:
-        f.write(f"{self.record}\n")
-
+        outfile = "/sd/" + outfile
+        with open(outfile, "a") as f:
+            f.write(f"{self.record}\n")
+    else:
+        pass
+        # We cannot write to internal storage if display is connected
+    
   # --- send data   ----------------------------------------------------------
 
   def send_data(self):
