@@ -39,12 +39,13 @@ from dataviews.DataPanel import DataPanel, PanelText
 
 # --- default configuration, override in config.py on sd-card   --------------
 
-TEST_MODE   = False       # set to FALSE for a production setup
+TEST_MODE   = True        # set to FALSE for a production setup
 NET_UPDATE  = True        # update RTC from time-server if time is invalid
-OFF_MINUTES = 15          # turn off for x minutes
-BLINK_TIME  = 0.25        # blink time of LED
-BLINK_START = 0           # blink n times before start of data-collection
-BLINK_END   = 0           # blink n times after finish of data-collection
+OFF_MINUTES = 1           # turn off for x minutes
+BLINK_TIME_START  = 0.5   # blink time of LED before start of data-collection
+BLINK_TIME_END  = 0.25    # blink time of LED  after finish of data-collection
+BLINK_START = 3           # blink n times before start of data-collection
+BLINK_END   = 5           # blink n times after finish of data-collection
 
 FORCE_CONT_MODE       = False
 #  Proposal: Add FORCE_STROBE_MODE so that code can be tested while powered
@@ -236,12 +237,12 @@ class DataCollector():
 
   # --- blink   --------------------------------------------------------------
 
-  def blink(self,count=1):
+  def blink(self,count=1, blink_time=0.25):
     for _ in range(count):
       self._led.value = 1
-      time.sleep(BLINK_TIME)
+      time.sleep(blink_time)
       self._led.value = 0
-      time.sleep(BLINK_TIME)
+      time.sleep(blink_time)
 
   # --- check for continuous-mode   ------------------------------------------
 
@@ -394,7 +395,7 @@ app.setup()
 
 while True:
   if TEST_MODE:
-    app.blink(count=BLINK_START)
+    app.blink(count=BLINK_START, blink_time=BLINK_TIME_START)
 
   app.collect_data()
   try:
@@ -405,7 +406,7 @@ while True:
     raise
 
   if TEST_MODE:
-    app.blink(count=BLINK_END)
+    app.blink(count=BLINK_END, blink_time=BLINK_TIME_END)
 
   if HAVE_DISPLAY:
     try:
