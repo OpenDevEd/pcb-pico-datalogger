@@ -39,16 +39,18 @@ from dataviews.DataPanel import DataPanel, PanelText
 
 # --- default configuration, override in config.py on sd-card   --------------
 
-TEST_MODE   = False       # set to FALSE for a productive setup
+TEST_MODE   = False       # set to FALSE for a production setup
 NET_UPDATE  = True        # update RTC from time-server if time is invalid
-OFF_MINUTES = 1           # turn off for x minutes
+OFF_MINUTES = 15          # turn off for x minutes
 BLINK_TIME  = 0.25        # blink time of LED
 BLINK_START = 0           # blink n times before start of data-collection
 BLINK_END   = 0           # blink n times after finish of data-collection
 
 FORCE_CONT_MODE       = False
+#  Proposal: Add FORCE_STROBE_MODE so that code can be tested while powered
+FORCE_STROBE_MODE       = False
 FORCE_SHUTDOWN_ON_USB = False
-CONT_INT              = 30          #  interval in continuous mode (in seconds)
+CONT_INT              = 5          #  interval in continuous mode (in seconds)
 
 HAVE_SD      = False
 HAVE_DISPLAY = True
@@ -57,6 +59,15 @@ HAVE_AHT20   = True
 HAVE_LTR559  = True
 HAVE_MCP9808 = True
 HAVE_ENS160  = False
+# Sensors added for testing:
+HAVE_SHT45   = True
+HAVE_BH1750  = True
+HAVE_BH1745  = True
+HAVE_MIC_I2S_MEMS = True
+HAVE_MIC_PDM_MEMS = True
+
+# Propose to add switch to allow running without pcb booard
+HAVE_PCB     = True
 
 LOGGER_NAME  = 'Darasa Kamili'  # Perfect Classroom
 LOGGER_ID    = 'N/A'            # Change this to your logger id
@@ -152,7 +163,7 @@ class DataCollector():
       from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
       self.ltr559 = Pimoroni_LTR559(i2c)
       self._sensors.append(self.read_LTR559)
-      self._formats.extend(["L/LTR:", "{0:.1f}Lux"])
+      self._formats.extend(["L/LTR:", "{0:.1f}lx"])
     if HAVE_MCP9808:
       import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
