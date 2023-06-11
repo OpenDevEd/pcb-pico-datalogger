@@ -47,9 +47,9 @@ BLINK_TIME_END  = 0.25    # blink time of LED  after finish of data-collection
 BLINK_START = 3           # blink n times before start of data-collection
 BLINK_END   = 5           # blink n times after finish of data-collection
 
-FORCE_CONT_MODE       = False
+FORCE_CONT_MODE       = False      # Use continuous mode (with CONT_INT) even when on battery
 #  Proposal: Add FORCE_STROBE_MODE so that code can be tested while powered
-FORCE_STROBE_MODE       = False
+FORCE_STROBE_MODE     = False      # Use strobe mode (with OFF_MINUTES) even when on power
 FORCE_SHUTDOWN_ON_USB = False
 CONT_INT              = 5          #  interval in continuous mode (in seconds)
 
