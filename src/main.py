@@ -335,6 +335,7 @@ class DataCollector():
     self._footer.text = f"at {ts}"
     self.display.root_group = self._panel
     self.display.refresh()
+    time.sleep(3)              # refresh returns before it is finished
 
   # --- set next wakeup   ----------------------------------------------------
 
