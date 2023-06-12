@@ -39,16 +39,19 @@ from dataviews.DataPanel import DataPanel, PanelText
 
 # --- default configuration, override in config.py on sd-card   --------------
 
-TEST_MODE   = False       # set to FALSE for a productive setup
+TEST_MODE   = True        # set to FALSE for a production setup
 NET_UPDATE  = True        # update RTC from time-server if time is invalid
 OFF_MINUTES = 1           # turn off for x minutes
-BLINK_TIME  = 0.25        # blink time of LED
-BLINK_START = 0           # blink n times before start of data-collection
-BLINK_END   = 0           # blink n times after finish of data-collection
+BLINK_TIME_START  = 0.5   # blink time of LED before start of data-collection
+BLINK_TIME_END  = 0.25    # blink time of LED  after finish of data-collection
+BLINK_START = 3           # blink n times before start of data-collection
+BLINK_END   = 5           # blink n times after finish of data-collection
 
-FORCE_CONT_MODE       = False
+FORCE_CONT_MODE       = False      # Use continuous mode (with CONT_INT) even when on battery
+#  Proposal: Add FORCE_STROBE_MODE so that code can be tested while powered
+FORCE_STROBE_MODE     = False      # Use strobe mode (with OFF_MINUTES) even when on power
 FORCE_SHUTDOWN_ON_USB = False
-CONT_INT              = 30          #  interval in continuous mode (in seconds)
+CONT_INT              = 5          #  interval in continuous mode (in seconds)
 
 HAVE_SD      = False
 HAVE_DISPLAY = True
@@ -57,9 +60,22 @@ HAVE_AHT20   = True
 HAVE_LTR559  = True
 HAVE_MCP9808 = True
 HAVE_ENS160  = False
+# Sensors added for testing:
+HAVE_SHT45   = True
+HAVE_BH1750  = True
+HAVE_BH1745  = True
+HAVE_MIC_I2S_MEMS = True
+HAVE_MIC_PDM_MEMS = True
 
-LOGGER_ID    = 'data'
-LOGGER_TITLE = 'My Datalogger'
+# Propose to add switch to allow running without pcb booard
+HAVE_PCB     = True
+
+LOGGER_NAME  = 'Darasa Kamili'  # Perfect Classroom
+LOGGER_ID    = '000'            # Change this to your logger id
+LOGGER_LOCATION = '6G5X46G4+XQ' # Plus Code for Dar airport
+LOGGER_TITLE = LOGGER_NAME + " " + LOGGER_LOCATION
+
+YMD = "YYYY-MM-DD"
 
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
@@ -145,24 +161,24 @@ class DataCollector():
       self.aht20 = adafruit_ahtx0.AHTx0(i2c)
       self._sensors.append(self.read_AHT20)
       self._formats.extend(
-        ["AHT20", "{0:.1f}°C","AHT20", "{0:.0f}%rH"])
+        ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"])
     if HAVE_LTR559:
       from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
       self.ltr559 = Pimoroni_LTR559(i2c)
       self._sensors.append(self.read_LTR559)
-      self._formats.extend(["Light", "{0:.0f}L"])
+      self._formats.extend(["L/LTR:", "{0:.1f}lx"])
     if HAVE_MCP9808:
       import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
       self._sensors.append(self.read_MCP9808)
-      self._formats.extend(["9808", "{0:.1f}°C"])
+      self._formats.extend(["T/MCP:", "{0:.1f}°C"])
     if HAVE_ENS160:
       import adadruit_ens160
       self.ens160 = adafruit_ens160.ENS160(i2)
       self._sensors.append(self.read_ENS160)
-      self._formats.extend(["AQI", "{0}"])
-      self._formats.extend(["TVOC", "{0} ppb"])
-      self._formats.extend(["eCO2", "{0} ppm eq."])
+      self._formats.extend(["AQI (ENS160):", "{0}"])
+      self._formats.extend(["TVOC (ENS160):", "{0} ppb"])
+      self._formats.extend(["eCO2 (ENS160):", "{0} ppm eq."])
 
     # just for testing
     if TEST_MODE:
@@ -223,12 +239,12 @@ class DataCollector():
 
   # --- blink   --------------------------------------------------------------
 
-  def blink(self,count=1):
+  def blink(self,count=1, blink_time=0.25):
     for _ in range(count):
       self._led.value = 1
-      time.sleep(BLINK_TIME)
+      time.sleep(blink_time)
       self._led.value = 0
-      time.sleep(BLINK_TIME)
+      time.sleep(blink_time)
 
   # --- check for continuous-mode   ------------------------------------------
 
@@ -245,6 +261,8 @@ class DataCollector():
 
     ts = time.localtime()
     ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
+    YMD = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}"
+    print(ts)
     self.data = {
       "ts":   ts_str
       }
@@ -317,10 +335,15 @@ class DataCollector():
   def save_data(self):
     """ save data """
     print(self.record)
+    outfile = f"log_{LOGGER_ID}-{YMD}.csv"
     if HAVE_SD:
-      with open(f"/sd/{LOGGER_ID}.csv", "a") as f:
-        f.write(f"{self.record}\n")
-
+        outfile = "/sd/" + outfile
+        with open(outfile, "a") as f:
+            f.write(f"{self.record}\n")
+    else:
+        pass
+        # We cannot write to internal storage if display is connected
+    
   # --- send data   ----------------------------------------------------------
 
   def send_data(self):
@@ -331,7 +354,8 @@ class DataCollector():
 
   def update_display(self):
     """ update display """
-
+    import re
+    
     if not self._view:
       self._create_view()
 
@@ -339,8 +363,8 @@ class DataCollector():
     self.values.extend([None for _ in range(len(self._formats)-len(self.values))])
 
     self._view.set_values(self.values)
-    [dt, tm] = self.data['ts'].split('T')
-    self._footer.text = f"Updated: {dt[2:]} {tm[:-3]}"
+    ts = re.sub("T", " ", self.data['ts'])
+    self._footer.text = f"at {ts}"
     self.display.root_group = self._panel
     self.display.refresh()
 
@@ -379,7 +403,7 @@ app.setup()
 
 while True:
   if TEST_MODE:
-    app.blink(count=BLINK_START)
+    app.blink(count=BLINK_START, blink_time=BLINK_TIME_START)
 
   app.collect_data()
   try:
@@ -390,7 +414,7 @@ while True:
     raise
 
   if TEST_MODE:
-    app.blink(count=BLINK_END)
+    app.blink(count=BLINK_END, blink_time=BLINK_TIME_END)
 
   if HAVE_DISPLAY:
     try:
@@ -412,3 +436,4 @@ while True:
 
 app.configure_wakeup()
 app.shutdown()
+
