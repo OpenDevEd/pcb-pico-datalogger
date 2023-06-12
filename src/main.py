@@ -14,6 +14,7 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import gc
 import time
 import board
 import alarm
@@ -37,43 +38,20 @@ from dataviews.Base import Color, Justify
 from dataviews.DataView  import DataView
 from dataviews.DataPanel import DataPanel, PanelText
 
-# --- default configuration, override in config.py on sd-card   --------------
+# --- default configuration is in config.py on the pico.
+#     You can override it also with a config.py on the sd-card   -------------
 
-TEST_MODE   = True        # set to FALSE for a production setup
-NET_UPDATE  = True        # update RTC from time-server if time is invalid
-OFF_MINUTES = 1           # turn off for x minutes
-BLINK_TIME_START  = 0.5   # blink time of LED before start of data-collection
-BLINK_TIME_END  = 0.25    # blink time of LED  after finish of data-collection
-BLINK_START = 3           # blink n times before start of data-collection
-BLINK_END   = 5           # blink n times after finish of data-collection
+def import_config():
+  """ import config-module and make variables global """
+  import config
+  for var in dir(config):
+    if var[0] != '_':
+      print(f"{var}={getattr(config,var)}")
+      globals()[var] = getattr(config,var)
+  config = None
+  gc.collect()
 
-FORCE_CONT_MODE       = False      # Use continuous mode (with CONT_INT) even when on battery
-#  Proposal: Add FORCE_STROBE_MODE so that code can be tested while powered
-FORCE_STROBE_MODE     = False      # Use strobe mode (with OFF_MINUTES) even when on power
-FORCE_SHUTDOWN_ON_USB = False
-CONT_INT              = 5          #  interval in continuous mode (in seconds)
-
-HAVE_SD      = False
-HAVE_DISPLAY = True
-HAVE_LORA    = False
-HAVE_AHT20   = True
-HAVE_LTR559  = True
-HAVE_MCP9808 = True
-HAVE_ENS160  = False
-# Sensors added for testing:
-HAVE_SHT45   = True
-HAVE_BH1750  = True
-HAVE_BH1745  = True
-HAVE_MIC_I2S_MEMS = True
-HAVE_MIC_PDM_MEMS = True
-
-# Propose to add switch to allow running without pcb booard
-HAVE_PCB     = True
-
-LOGGER_NAME  = 'Darasa Kamili'  # Perfect Classroom
-LOGGER_ID    = '000'            # Change this to your logger id
-LOGGER_LOCATION = '6G5X46G4+XQ' # Plus Code for Dar airport
-LOGGER_TITLE = LOGGER_NAME + " " + LOGGER_LOCATION
+import_config()
 
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
@@ -125,13 +103,9 @@ class DataCollector():
       storage.mount(self.vfs, "/sd")
       try:
         import sys
-        sys.path.append("/sd")
-        import config
-        for var in dir(config):
-          if var[0] != '_':
-            print(f"{var}={getattr(config,var)}")
-            globals()[var] = getattr(config,var)
-        sys.path.pop()
+        sys.path.insert(0,"/sd")
+        import_config()
+        sys.path.pop(0)
       except:
         print("no configuration found in /sd/config.py")
 
@@ -152,7 +126,7 @@ class DataCollector():
       self._view = None
  
     # sensors
-    self._formats = ["Bat","{0:0.1f}V"]
+    self._formats = ["Bat:","{0:0.1f}V"]
     self._sensors = [self.read_battery]    # list of readout-methods
     if HAVE_AHT20:
       import adafruit_ahtx0
@@ -174,9 +148,9 @@ class DataCollector():
       import adadruit_ens160
       self.ens160 = adafruit_ens160.ENS160(i2)
       self._sensors.append(self.read_ENS160)
-      self._formats.extend(["AQI (ENS160):", "{0}"])
-      self._formats.extend(["TVOC (ENS160):", "{0} ppb"])
-      self._formats.extend(["eCO2 (ENS160):", "{0} ppm eq."])
+      self._formats.extend(["AQI:", "{0}"])
+      self._formats.extend(["TVOC:", "{0} ppb"])
+      self._formats.extend(["eCO2:", "{0} ppm eq."])
 
     # just for testing
     if TEST_MODE:
@@ -250,7 +224,7 @@ class DataCollector():
     """ returns false if on USB-power """
 
     return FORCE_CONT_MODE or (
-            self.vbus_sense.value and not FORCE_SHUTDOWN_ON_USB)
+            self.vbus_sense.value and not FORCE_STROBE_MODE)
 
   # --- collect data   -------------------------------------------------------
 
@@ -337,9 +311,6 @@ class DataCollector():
         outfile = "/sd/" + outfile
         with open(outfile, "a") as f:
             f.write(f"{self.record}\n")
-    else:
-        pass
-        # We cannot write to internal storage if display is connected
     
   # --- send data   ----------------------------------------------------------
 
