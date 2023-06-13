@@ -78,11 +78,14 @@ class DataCollector():
   def setup(self):
     """ create hardware-objects """
 
-    # i2c - RTC and sensors
+		# Initialse i2c bus for use by sensors and RTC
     i2c = busio.I2C(PIN_SCL,PIN_SDA)
-    self.rtc = ExtRTC(i2c,net_update=NET_UPDATE)  # this will also clear interrupts
-    self.rtc.rtc_ext.high_capacitance = True      # the pcb uses a 12.5pF capacitor
-    self.rtc.update()                             # (time-server->)ext-rtc->int-rtc
+
+    # If our custom PCB is connected, we have an RTC. Initialise it.
+    if HAVE_PCB:
+      self.rtc = ExtRTC(i2c,net_update=NET_UPDATE)  # this will also clear interrupts
+      self.rtc.rtc_ext.high_capacitance = True      # the pcb uses a 12.5pF capacitor
+      self.rtc.update()                             # (time-server->)ext-rtc->int-rtc
 
     self.done           = DigitalInOut(PIN_DONE)
     self.done.direction = Direction.OUTPUT
