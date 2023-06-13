@@ -78,7 +78,7 @@ class DataCollector():
   def setup(self):
     """ create hardware-objects """
 
-		# Initialse i2c bus for use by sensors and RTC
+    # Initialse i2c bus for use by sensors and RTC
     i2c = busio.I2C(PIN_SCL,PIN_SDA)
 
     # If our custom PCB is connected, we have an RTC. Initialise it.
