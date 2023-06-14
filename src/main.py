@@ -59,18 +59,18 @@ import_config()
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
 PIN_DONE = board.GP4   # connect to 74HC74 CLK
-PIN_SDA  = board.GP2   # connect to RTC
-PIN_SCL  = board.GP3   # connect to RTC
+PIN_SDA  = board.GP2   # connect to sensors and RTC via I2C interface
+PIN_SCL  = board.GP3   # connect to sensors and RTC via I2C interface
 
-PIN_SD_CS   = board.GP22
+PIN_SD_CS   = board.GP22  # connect to SPI interface
 PIN_SD_SCK  = board.GP18
 PIN_SD_MOSI = board.GP19
 PIN_SD_MISO = board.GP16
 
-PIN_PDM_CLK = board.GP5
+PIN_PDM_CLK = board.GP5   # set up GP for PDM communication
 PIN_PDM_DAT = board.GP28
 
-PIN_INKY_CS   = board.GP17
+PIN_INKY_CS   = board.GP17 # setup additional GP for Inky display
 PIN_INKY_RST  = board.GP21
 PIN_INKY_DC   = board.GP20
 PIN_INKY_BUSY = board.GP26
@@ -380,7 +380,7 @@ class DataCollector():
       time.sleep(3)              # refresh returns before it is finished
     if TEST_MODE:
         app.blink(count=10, blink_time=0.25, pause_before=2)
-        
+
   # --- set next wakeup   ----------------------------------------------------
 
   def configure_wakeup(self):
