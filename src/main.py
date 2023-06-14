@@ -18,6 +18,9 @@ import gc
 import time
 import board
 import alarm
+import array
+import math
+
 from digitalio import DigitalInOut, Direction, Pull
 from analogio import AnalogIn
 
@@ -63,6 +66,9 @@ PIN_SD_CS   = board.GP22
 PIN_SD_SCK  = board.GP18
 PIN_SD_MOSI = board.GP19
 PIN_SD_MISO = board.GP16
+
+PIN_PDM_CLK = board.GP5
+PIN_PDM_DAT = board.GP28
 
 PIN_INKY_CS   = board.GP17
 PIN_INKY_RST  = board.GP21
@@ -151,6 +157,12 @@ class DataCollector():
       self._formats.extend(["AQI:", "{0}"])
       self._formats.extend(["TVOC:", "{0} ppb"])
       self._formats.extend(["eCO2:", "{0} ppm eq."])
+    if HAVE_MIC_PDM_MEMS:
+      import audiobusio
+      self.mic = audiobusio.PDMIn(PIN_PDM_CLK,PIN_PDM_DAT,
+                                  sample_rate=16000, bit_depth=16)
+      self._sensors.append(self.read_PDM)
+      self._formats.extend(["Noise:", "{0:0.0f}"])
 
     # just for testing
     if TEST_MODE:
@@ -290,6 +302,24 @@ class DataCollector():
     self.record += f",{t:0.1f}"
     self.values.extend([None,t])
 
+  # --- read PDM-mic    ------------------------------------------------------
+
+  def read_PDM(self):
+    samples = array.array('H', [0] * 160)
+    self.mic.record(samples, len(samples))
+
+    mean_samples = int(sum(samples)/len(samples))
+    sum2_samples = sum(
+        float(sample - mean_samples) * (sample - mean_samples)
+        for sample in samples
+    )
+    mag = math.sqrt(sum2_samples / len(samples))
+    self.data["pdm"] = {
+      "mag": mag
+    }
+    self.record += f",{mag:0.0f}"
+    self.values.extend([None,mag])
+
   # --- read ENS160   --------------------------------------------------------
 
   def read_ENS160(self):
@@ -326,8 +356,8 @@ class DataCollector():
 
   def update_display(self):
     """ update display """
-    import re
-    
+
+    gc.collect()
     if not self._view:
       self._create_view()
 
@@ -336,14 +366,15 @@ class DataCollector():
     if TEST_MODE:
         app.blink(count=5, blink_time=0.5, pause_before=2)
     self._view.set_values(self.values)
-    ts = re.sub("T", " ", self.data['ts'])
-    self._footer.text = f"at {ts}"
+    dt, ts = self.data['ts'].split("T")
+    self._footer.text = f"at {dt} {ts}"
     self.display.root_group = self._panel
     self.display.refresh()
+    print("finished refreshing display")
+    if not self.continuous_mode():
+      time.sleep(3)              # refresh returns before it is finished
     if TEST_MODE:
         app.blink(count=10, blink_time=0.25, pause_before=2)
-    if TEST_MODE:
-        app.blink(count=5, blink_time=0.5, pause_before=2)
 
   # --- set next wakeup   ----------------------------------------------------
 
