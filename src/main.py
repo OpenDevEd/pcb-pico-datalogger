@@ -226,20 +226,24 @@ class DataCollector():
 
   # --- blink   --------------------------------------------------------------
 
-  def blink(self,count=1, blink_time=0.25):
+  def blink(self, count=1, blink_time=0.25, pause_before=1, pause_after=0):
+    time.sleep(pause_before)
     for _ in range(count):
       self._led.value = 1
       time.sleep(blink_time)
       self._led.value = 0
       time.sleep(blink_time)
+    time.sleep(pause_after)
 
   # --- check for continuous-mode   ------------------------------------------
 
   def continuous_mode(self):
     """ returns false if on USB-power """
 
-    return FORCE_CONT_MODE or (
+    CONT_MODE = FORCE_CONT_MODE or (
             self.vbus_sense.value and not FORCE_STROBE_MODE)
+    print("continuous_mode="+str(CONT_MODE))
+    return CONT_MODE
 
   # --- collect data   -------------------------------------------------------
 
@@ -363,6 +367,9 @@ class DataCollector():
     # fill in unused cells
     self.values.extend([None for _ in range(len(self._formats)-len(self.values))])
 
+    if TEST_MODE:
+        app.blink(count=5, blink_time=0.5, pause_before=2)
+
     self._view.set_values(self.values)
     dt, ts = self.data['ts'].split("T")
     self._footer.text = f"at {dt} {ts}"
@@ -371,7 +378,9 @@ class DataCollector():
     print("finished refreshing display")
     if not self.continuous_mode():
       time.sleep(3)              # refresh returns before it is finished
-
+    if TEST_MODE:
+        app.blink(count=10, blink_time=0.25, pause_before=2)
+        
   # --- set next wakeup   ----------------------------------------------------
 
   def configure_wakeup(self):
