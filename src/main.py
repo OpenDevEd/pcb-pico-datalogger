@@ -152,6 +152,11 @@ class DataCollector():
       self.ltr559 = Pimoroni_LTR559(i2c)
       self._sensors.append(self.read_LTR559)
       self._formats.extend(["L/LTR:", "{0:.1f}lx"])
+    if HAVE_BH1750:
+      import adafruit_bh1750
+      self.bh1750 = adafruit_bh1750.BH1750(i2c)
+      self._sensors.append(self.read_bh1750)
+      self._formats.extend(["L/bh1750:", "{0:.1f}lx"])
     if HAVE_MCP9808:
       import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
@@ -294,6 +299,16 @@ class DataCollector():
   def read_LTR559(self):
     lux = self.ltr559.lux
     self.data["ltr559"] = {
+      "lux": lux
+    }
+    self.record += f",{lux:0.1f}"
+    self.values.extend([None,lux])
+
+  # --- read bh1750   --------------------------------------------------------
+
+  def read_bh1750(self):
+    lux = self.bh1750.lux
+    self.data["bh1750"] = {
       "lux": lux
     }
     self.record += f",{lux:0.1f}"
