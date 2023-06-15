@@ -281,7 +281,10 @@ class DataCollector():
     level = adc.value *  3 * 3.3 / 65535
     adc.deinit()
     self.data["battery"] = level
-    self.record += f",{level:0.1f}"
+    unit = ""
+    if (SHOW_UNITS):
+      unit = " V"
+    self.record += f",{level:0.1f}"+unit
     self.values.extend([None,level])
 
   # --- read AHT20   ---------------------------------------------------------
@@ -296,6 +299,22 @@ class DataCollector():
     self.record += f",{t:0.1f},{h:0.0f}"
     self.values.extend([None,t])
     self.values.extend([None,h])
+
+  # --- read SHT45   ---------------------------------------------------------
+  # to do
+  
+  # --- read AM2301B ---------------------------------------------------------
+  # to do
+  
+  # --- read MCP9808   -------------------------------------------------------
+
+  def read_MCP9808(self):
+    t = self.mcp9808.temperature
+    self.data["mcp9808"] = {
+      "temp": t
+    }
+    self.record += f",{t:0.1f}"
+    self.values.extend([None,t])
 
   # --- read LTR559   --------------------------------------------------------
 
@@ -317,15 +336,8 @@ class DataCollector():
     self.record += f",{lux:0.1f}"
     self.values.extend([None,lux])
 
-  # --- read MCP9808   -------------------------------------------------------
-
-  def read_MCP9808(self):
-    t = self.mcp9808.temperature
-    self.data["mcp9808"] = {
-      "temp": t
-    }
-    self.record += f",{t:0.1f}"
-    self.values.extend([None,t])
+  # --- read bh1745 --------------------------------------------------------
+  # to do
 
   # --- read PDM-mic    ------------------------------------------------------
 
