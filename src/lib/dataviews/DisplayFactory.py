@@ -55,6 +55,16 @@ class DisplayFactory:
     return ST7789(bus,width=width,height=height,rotation=rotation,
                   rowstart=rowstart,colstart=colstart)
 
+  # --- cerate ST7789-based display for the Pimoroni Pico-Display-Pack  ------
+
+  @staticmethod
+  def display_pack(spi=None):
+    """ factory-method for a Display-Pack display """
+
+    if spi is None:
+      spi = busio.SPI(clock=board.GP18,MOSI=board.GP19)
+    return DisplayFactory.st7789(pin_dc=board.GP16,pin_cs=board.GP17,spi=spi)
+
   # --- create ST7735-based SPI-display   ------------------------------------
 
   @staticmethod
@@ -80,3 +90,20 @@ class DisplayFactory:
 
     from blinka_displayio_pygamedisplay import PyGameDisplay
     return PyGameDisplay(width=width,height=height,**kwargs)
+
+  # --- create display for Pimoronis Pico Inky-Pack   -------------------------
+
+  @staticmethod
+  def inky_pack(spi=None):
+    """ create display for InkyPack """
+
+    import InkyPack
+
+    if spi is None:
+      spi = busio.SPI(board.GP18,MOSI=board.GP19)
+
+    display_bus = displayio.FourWire(
+      spi, command=board.GP20, chip_select=board.GP17,
+      reset=board.GP21, baudrate=1000000
+    )
+    return InkyPack.InkyPack(display_bus,busy_pin=board.GP26)

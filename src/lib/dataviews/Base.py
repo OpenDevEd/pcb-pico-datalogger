@@ -86,15 +86,14 @@ class BaseGroup(displayio.Group):
       shader[0] = bg_color
     else:
       shader[0] = self.bg_color
-      
+
     if color != -1:
       shader[1] = color
     else:
       shader[1] = self.color
-      
+
     if border == -1:
       border = self.border
-
 
     for _ in range(len(self._background)):
       self._background.pop()
