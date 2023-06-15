@@ -37,6 +37,7 @@ import displayio
 import adafruit_display_text, adafruit_display_shapes, adafruit_bitmap_font
 import InkyPack
 
+from dataviews.DisplayFactory import DisplayFactory
 from dataviews.Base import Color, Justify
 from dataviews.DataView  import DataView
 from dataviews.DataPanel import DataPanel, PanelText
@@ -119,19 +120,22 @@ class DataCollector():
         print("no configuration found in /sd/config.py")
 
     # display
+    global HAVE_DISPLAY
     if HAVE_DISPLAY:
 
       displayio.release_displays()
 
       # spi - if not already created
       if not HAVE_SD:
-        self._spi = busio.SPI(PIN_SD_SCK,PIN_SD_MOSI,PIN_SD_MISO)
+        self._spi = busio.SPI(PIN_SD_SCK,PIN_SD_MOSI)
 
-      display_bus = displayio.FourWire(
-        self._spi, command=PIN_INKY_DC, chip_select=PIN_INKY_CS,
-        reset=PIN_INKY_RST, baudrate=1000000
-      )
-      self.display = InkyPack.InkyPack(display_bus,busy_pin=PIN_INKY_BUSY)
+      if HAVE_DISPLAY == "Inky-Pack":
+        self.display = DisplayFactory.inky_pack(self._spi)
+      elif HAVE_DISPLAY == "Display-Pack":
+        self.display = DisplayFactory.display_pack(self._spi)
+      else:
+        print(f"unsupported display: {HAVE_DISPLAY}")
+        HAVE_DISPLAY = None
       self._view = None
  
     # sensors
