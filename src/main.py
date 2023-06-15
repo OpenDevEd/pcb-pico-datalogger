@@ -139,7 +139,7 @@ class DataCollector():
         HAVE_DISPLAY = None
       self._view = None
  
-    print("Check displayX")
+    print("Check display done! This works.")
     
     # sensors
     self._formats = ["Bat:","{0:0.1f}V"]
@@ -398,7 +398,8 @@ class DataCollector():
     self._footer.text = f"at {dt} {ts}"
     self.display.root_group = self._panel
     self.display.refresh()
-    print("finished refreshing display")
+    print("finished refreshing display - I don't get here.")
+
     if not self.continuous_mode():
       time.sleep(3)              # refresh returns before it is finished
     if TEST_MODE:
