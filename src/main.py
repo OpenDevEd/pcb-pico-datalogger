@@ -120,6 +120,7 @@ class DataCollector():
         print("no configuration found in /sd/config.py")
 
     # display
+    print("Check display")
     global HAVE_DISPLAY
     if HAVE_DISPLAY:
 
@@ -138,6 +139,8 @@ class DataCollector():
         HAVE_DISPLAY = None
       self._view = None
  
+    print("Check displayX")
+    
     # sensors
     self._formats = ["Bat:","{0:0.1f}V"]
     self._sensors = [self.read_battery]    # list of readout-methods
@@ -378,6 +381,7 @@ class DataCollector():
 
   def update_display(self):
     """ update display """
+    print("update display")
 
     gc.collect()
     if not self._view:
