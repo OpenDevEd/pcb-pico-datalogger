@@ -51,7 +51,7 @@ Additional resources
   * [Pinout](pins.md)
   * Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00
   * [Software](datacollector.md)
-  * [KiCAD design-files](pico-datalogger/Readme.md)
+  * [KiCAD design-files](pico-datalogger/pico-datalooger.kicad/Readme.md)
   * [References](references.md)
 
 
