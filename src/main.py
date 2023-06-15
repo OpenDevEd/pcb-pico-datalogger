@@ -120,6 +120,7 @@ class DataCollector():
         print("no configuration found in /sd/config.py")
 
     # display
+    print("Check display")
     global HAVE_DISPLAY
     if HAVE_DISPLAY:
 
@@ -138,6 +139,8 @@ class DataCollector():
         HAVE_DISPLAY = None
       self._view = None
  
+    print("Check displayX")
+    
     # sensors
     self._formats = ["Bat:","{0:0.1f}V"]
     self._sensors = [self.read_battery]    # list of readout-methods
@@ -152,6 +155,11 @@ class DataCollector():
       self.ltr559 = Pimoroni_LTR559(i2c)
       self._sensors.append(self.read_LTR559)
       self._formats.extend(["L/LTR:", "{0:.1f}lx"])
+    if HAVE_BH1750:
+      import adafruit_bh1750
+      self.bh1750 = adafruit_bh1750.BH1750(i2c)
+      self._sensors.append(self.read_bh1750)
+      self._formats.extend(["L/bh1750:", "{0:.1f}lx"])
     if HAVE_MCP9808:
       import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
@@ -299,6 +307,16 @@ class DataCollector():
     self.record += f",{lux:0.1f}"
     self.values.extend([None,lux])
 
+  # --- read bh1750   --------------------------------------------------------
+
+  def read_bh1750(self):
+    lux = self.bh1750.lux
+    self.data["bh1750"] = {
+      "lux": lux
+    }
+    self.record += f",{lux:0.1f}"
+    self.values.extend([None,lux])
+
   # --- read MCP9808   -------------------------------------------------------
 
   def read_MCP9808(self):
@@ -363,6 +381,7 @@ class DataCollector():
 
   def update_display(self):
     """ update display """
+    print("update display")
 
     gc.collect()
     if not self._view:
