@@ -26,3 +26,5 @@ config.py
 __pycache__
 
 src/.vscode
+.vscode
+BaCkUp

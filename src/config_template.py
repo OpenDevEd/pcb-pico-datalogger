@@ -21,10 +21,10 @@ FORCE_STROBE_MODE     = False      # Use strobe mode (with OFF_MINUTES) even whe
 CONT_INT              = 60         #  interval in continuous mode (in seconds)
 
 # hardware setup
-HAVE_PCB     = True       # The Pico is running on the pcb described here: https://github.com/pcb-pico-datalogger
-HAVE_SD      = False      # The PCB has an sd card inserted (or an sd card is connected otherwise)
+HAVE_PCB     = True                # The Pico is running on the pcb described here: https://github.com/pcb-pico-datalogger
+HAVE_SD      = False               # The PCB has an sd card inserted (or an sd card is connected otherwise)
 HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None
-HAVE_SD      = False
+HAVE_LORA    = False               # Adafruit RFM96W LoRa Radio Transceiver Breakout is avaialble
 
 # hardware configuration settings for sensors
 HAVE_AHT20   = True       # Sense temperature and humidity with an Adafruit AHT20 sensor connected on I2C bus
@@ -35,7 +35,6 @@ HAVE_ENS160  = False      # Sense environmental properties with an ENS160 sensor
 HAVE_MIC_PDM_MEMS = True  # Sense noise with a MIC-PDM-MEMS sensor connected via PDMio interface
 
 # hardware configuration configuration settings - not implemented yet
-HAVE_LORA    = False      # Adafruit RFM96W LoRa Radio Transceiver Breakout is avaialble
 HAVE_SHT45   = False      # Sense temperature and humidity with a Adafruit SHT45 sensor connected on I2C bus
 HAVE_AM2301B = False      # Sense temperature and humidity with Adafruit AM2301B Wired enclosed shell on I2C bus
 HAVE_BH1745  = False      # Sense light level with a Pimoroni BH1745 sensor connected on I2C bus
