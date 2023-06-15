@@ -37,6 +37,7 @@ HAVE_LORA    = False      # Adafruit RFM96W LoRa Radio Transceiver Breakout is a
 HAVE_SHT45   = False      # Sense temperature and humidity with a SHT45 sensor connected on I2C bus
 HAVE_BH1750  = False      # Sense light level with a BH1750 sensor connected on I2C bus
 HAVE_BH1745  = False      # Sense light level with a BH1745 sensor connected on I2C bus
+HAVE_AM2301B = False      # Sense temperature and humidity with Adafruit AM2301B Wired enclosed shell on I2C bus
 
 # hardware configuration configuration settings - I2S mic not yet supported in Circuitpython
 HAVE_MIC_I2S_MEMS = False # Sense noise with a MIC-I2S-MEMS sensor connected on I2
