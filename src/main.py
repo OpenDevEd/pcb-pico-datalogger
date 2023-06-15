@@ -119,25 +119,25 @@ class DataCollector():
       except:
         print("no configuration found in /sd/config.py")
 
+   
     # display
-    global HAVE_DISPLAY
     if HAVE_DISPLAY:
 
       displayio.release_displays()
 
       # spi - if not already created
       if not HAVE_SD:
-        self._spi = busio.SPI(PIN_SD_SCK,PIN_SD_MOSI)
+        self._spi = busio.SPI(PIN_SD_SCK,PIN_SD_MOSI,PIN_SD_MISO)
+        
+    
 
-      if HAVE_DISPLAY == "Inky-Pack":
-        self.display = DisplayFactory.inky_pack(self._spi)
-      elif HAVE_DISPLAY == "Display-Pack":
-        self.display = DisplayFactory.display_pack(self._spi)
-      else:
-        print(f"unsupported display: {HAVE_DISPLAY}")
-        HAVE_DISPLAY = None
+      display_bus = displayio.FourWire(
+        self._spi, command=PIN_INKY_DC, chip_select=PIN_INKY_CS,
+        reset=PIN_INKY_RST, baudrate=400000
+      )
+      self.display = InkyPack.InkyPack(display_bus,busy_pin=PIN_INKY_BUSY)
       self._view = None
- 
+      
     # sensors
     self._formats = ["Bat:","{0:0.1f}V"]
     self._sensors = [self.read_battery]    # list of readout-methods
