@@ -296,7 +296,12 @@ class DataCollector():
       "temp": t,
       "hum":  h
     }
-    self.record += f",{t:0.1f},{h:0.0f}"
+    unitT = ""
+    unitH = ""
+    if (SHOW_UNITS):
+      unitT = " °C"
+      unitH = " %"
+    self.record += f",{t:0.1f} "+unitT+",{h:0.0f}"+unitH
     self.values.extend([None,t])
     self.values.extend([None,h])
 
@@ -313,7 +318,10 @@ class DataCollector():
     self.data["mcp9808"] = {
       "temp": t
     }
-    self.record += f",{t:0.1f}"
+    unit = ""
+    if (SHOW_UNITS):
+      unit = " °C"
+    self.record += f",{t:0.1f}"+unit
     self.values.extend([None,t])
 
   # --- read LTR559   --------------------------------------------------------
@@ -323,7 +331,10 @@ class DataCollector():
     self.data["ltr559"] = {
       "lux": lux
     }
-    self.record += f",{lux:0.1f}"
+    unit = ""
+    if (SHOW_UNITS):
+      unit = " lx"
+    self.record += f",{lux:0.1f}"+unit
     self.values.extend([None,lux])
 
   # --- read bh1750   --------------------------------------------------------
@@ -333,7 +344,10 @@ class DataCollector():
     self.data["bh1750"] = {
       "lux": lux
     }
-    self.record += f",{lux:0.1f}"
+    unit = ""
+    if (SHOW_UNITS):
+      unit = " lx"
+    self.record += f",{lux:0.1f}"+unit
     self.values.extend([None,lux])
 
   # --- read bh1745 --------------------------------------------------------
