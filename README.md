@@ -36,13 +36,6 @@ A micro-sd card reader is connected to SPI to enable logging of data.
 Various additional connectors allow the user to connect sensors or displays.
 
 
-Software
---------
-
-A CircuitPython implementation for a datalogger-program is in the directory
-`src`. See [datacollector.md](datacollector.md) for details.
-
-
 Background
 ----------
 
@@ -53,10 +46,13 @@ For background on / motivation for this project, please see
 Additional resources
 --------------------
 
+  * [Sensors and Components](components.md)
   * [Hardware setup](hardware_setup.md)
-  * [KiCAD design-files](pico-datalogger/)
   * [Pinout](pins.md)
   * Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00
+  * [Software](datacollector.md)
+  * [KiCAD design-files](pico-datalogger/Readme.md)
+  * [References](references.md)
 
 
 License
