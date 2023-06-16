@@ -63,18 +63,22 @@ PIN_DONE = board.GP4   # connect to 74HC74 CLK
 PIN_SDA  = board.GP2   # connect to sensors and RTC via I2C interface
 PIN_SCL  = board.GP3   # connect to sensors and RTC via I2C interface
 
-PIN_SD_CS   = board.GP22  # connect to SPI interface
+# SD-card interface (SPI)
+PIN_SD_CS   = board.GP22
 PIN_SD_SCK  = board.GP18
 PIN_SD_MOSI = board.GP19
 PIN_SD_MISO = board.GP16
 
-PIN_PDM_CLK = board.GP5   # set up GP for PDM communication
+# PDM-mic
+PIN_PDM_CLK = board.GP5
 PIN_PDM_DAT = board.GP28
 
-PIN_INKY_CS   = board.GP17 # setup additional GP for Inky display
+# display interface (SPI, Inky-Pack)
+PIN_INKY_CS   = board.GP17
 PIN_INKY_RST  = board.GP21
 PIN_INKY_DC   = board.GP20
 PIN_INKY_BUSY = board.GP26
+
 FONT_INKY     = 'DejaVuSansMono-Bold-18-subset'
 
 class DataCollector():
@@ -120,7 +124,6 @@ class DataCollector():
         print("no configuration found in /sd/config.py")
 
     # display
-    print("Check display")
     global HAVE_DISPLAY
     if HAVE_DISPLAY:
 
@@ -138,9 +141,7 @@ class DataCollector():
         print(f"unsupported display: {HAVE_DISPLAY}")
         HAVE_DISPLAY = None
       self._view = None
- 
-    print("Check display done! This works.")
-    
+
     # sensors
     self._formats = ["Bat:","{0:0.1f}V"]
     self._sensors = [self.read_battery]    # list of readout-methods
@@ -238,24 +239,20 @@ class DataCollector():
 
   # --- blink   --------------------------------------------------------------
 
-  def blink(self, count=1, blink_time=0.25, pause_before=1, pause_after=0):
-    time.sleep(pause_before)
+  def blink(self, count=1, blink_time=0.25):
     for _ in range(count):
       self._led.value = 1
       time.sleep(blink_time)
       self._led.value = 0
       time.sleep(blink_time)
-    time.sleep(pause_after)
 
   # --- check for continuous-mode   ------------------------------------------
 
   def continuous_mode(self):
     """ returns false if on USB-power """
 
-    CONT_MODE = FORCE_CONT_MODE or (
+    return FORCE_CONT_MODE or (
             self.vbus_sense.value and not FORCE_STROBE_MODE)
-    print("continuous_mode="+str(CONT_MODE))
-    return CONT_MODE
 
   # --- collect data   -------------------------------------------------------
 
@@ -381,7 +378,6 @@ class DataCollector():
 
   def update_display(self):
     """ update display """
-    print("update display")
 
     gc.collect()
     if not self._view:
@@ -390,20 +386,15 @@ class DataCollector():
     # fill in unused cells
     self.values.extend([None for _ in range(len(self._formats)-len(self.values))])
 
-    if TEST_MODE:
-        app.blink(count=5, blink_time=0.5, pause_before=2)
-
     self._view.set_values(self.values)
     dt, ts = self.data['ts'].split("T")
     self._footer.text = f"at {dt} {ts}"
     self.display.root_group = self._panel
     self.display.refresh()
-    print("finished refreshing display - I don't get here.")
+    print("finished refreshing display")
 
     if not self.continuous_mode():
       time.sleep(3)              # refresh returns before it is finished
-    if TEST_MODE:
-        app.blink(count=10, blink_time=0.25, pause_before=2)
 
   # --- set next wakeup   ----------------------------------------------------
 
