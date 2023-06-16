@@ -8,21 +8,23 @@ AHT20
   - Status: implemented
   - I2C-Breakout: (Adafruit  4566)[https://adafru.it/4566]
   - Address: 0x38
-  - Guide: 
-  - CircuitPython-driver:
+  - Guide: <https://learn.adafruit.com/adafruit-aht20>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_AHTx0>
   - [datasheet](https://cdn-learn.adafruit.com/assets/assets/000/091/676/original/AHT20-datasheet-2020-4-16.pdf?1591047915)
 
 
 AM2301B
 -------
 
-  - Measures temperature and humidity (claims to be an AHT20 in an enclosure)
-  - Status: planned
-  - I2C-Breakout: (Adafruit  ????)[https://adafru.it/????]
+  - Measures temperature and humidity (is an AHT20 in an enclosure)
+  - Status: implemented
+  - I2C-Breakout: (Adafruit  5181)[https://adafru.it/5181]
   - Address: 0x38
-  - Guide: 
-  - CircuitPython-driver:
+  - Guide: <https://learn.adafruit.com/adafruit-aht20>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_AHTx0>
   - [datasheet](https://cdn-shop.adafruit.com/product-files/5181/5181_AM2301B.pdf)
+  - Note: non-standard wiring:  
+    Red: 3V3, Black: GND, White: SCL, Yellow: SDA
 
 
 SHT45
@@ -128,12 +130,3 @@ need some rework on the pcb.
 - Oscillator: <https://datasheet.lcsc.com/lcsc/1810171817_Seiko-Epson-Q13FC1350000400_C32346.pdf>
 - CR2032-Holder: <https://datasheet.lcsc.com/lcsc/2012121836_MYOUNG-BS-08-B2AA001_C964777.pdf>
 
-
-Software
---------
-
-To follow.
-
-Background
-----------
-For background on / motivation for this project, please see https://opendeved.net/programmes/ilce-in-tanzania/.
