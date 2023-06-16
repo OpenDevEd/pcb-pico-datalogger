@@ -240,6 +240,7 @@ class DataCollector():
 
     ts = time.localtime()
     ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
+    self.g.append(displayText(" "  + str(ts_str) + " V" , 30, 280))
     self.data = {
       "ts":   ts_str
       }
@@ -271,8 +272,8 @@ class DataCollector():
       "temp": t,
       "hum":  h
     }
-    self.g.append(displayText("Temperature: "  + str(t) + " V" , 10, 30))
-    self.g.append(displayText("Humidity: "  + str(h) + " V" , 10, 40))
+    self.g.append(displayText("Temperature: "  + str(t) + " °C" , 10, 30))
+    self.g.append(displayText("Humidity: "  + str(h) + " H" , 10, 40))
     self.record += f",{t:0.1f},{h:0.0f}"
     self.values.extend([None,t])
     self.values.extend([None,h])
@@ -295,7 +296,7 @@ class DataCollector():
       "lux": lux
     }
     self.record += f",{lux:0.1f}"
-    self.g.append(displayText("Light: "  + str(lux) + " V" , 10, 50))
+    self.g.append(displayText("Light: "  + str(lux) + " Lux" , 10, 50))
     self.values.extend([None,lux])
 
   # --- read MCP9808   -------------------------------------------------------
