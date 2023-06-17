@@ -496,4 +496,3 @@ while True:
 
 app.configure_wakeup()
 app.shutdown()
-xxx
