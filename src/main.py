@@ -79,7 +79,7 @@ PIN_INKY_RST  = board.GP21
 PIN_INKY_DC   = board.GP20
 PIN_INKY_BUSY = board.GP26
 
-FONT_INKY     = 'DejaVuSans-16-subset'
+FONT_INKY     = 'DejaVuSansMono-Bold-18-subset.bdf'
 
 class DataCollector():
   """ main application class """
