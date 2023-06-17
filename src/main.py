@@ -322,10 +322,7 @@ class DataCollector():
 
   # --- read SHT45   ---------------------------------------------------------
   # to do
-  
-  # --- read AM2301B ---------------------------------------------------------
-  # to do
-  
+    
   # --- read MCP9808   -------------------------------------------------------
 
   def read_MCP9808(self):
@@ -421,18 +418,17 @@ class DataCollector():
 
     print(self.record)
     YMD = self.data["ts"].split("T")[0]
-    outfile = f"log_{LOGGER_ID}_{YMD}-test3.csv"
+    outfile = f"log_{LOGGER_ID}_{YMD}.csv"
     if HAVE_SD:
-      save_status = ""
+      save_status = "??"
       outfile = "/sd/" + outfile
       if not(self.file_exists(outfile)):
         with open(outfile, "a") as f:
           f.write(f"{self.header}\n")
           print(self.header)
-          save_status = save_status + "h"
       with open(outfile, "a") as f:
         f.write(f"{self.record}\n")
-        save_status = save_status + "SD"
+        save_status = "SD"
     
   # --- send data   ----------------------------------------------------------
 
