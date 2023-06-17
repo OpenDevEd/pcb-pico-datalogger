@@ -200,15 +200,19 @@ class DataCollector():
       dim = (3,4)
     self._formats.extend(
       ["" for _ in range(dim[0]*dim[1] - len(self._formats))])
+
+    border  = 1
+    divider = 1
+    padding = 5
     self._view = DataView(
       dim=dim,
-      width=self.display.width-2-(dim[1]-1),
+      width=self.display.width-2*border-(dim[1]-1)*divider,
       height=int(0.6*self.display.height),
       justify=Justify.LEFT,
       fontname=f"fonts/{FONT_INKY}.bdf",
       formats=self._formats,
-      border=1,
-      divider=1,
+      border=border,
+      divider=divider,
       color=Color.BLACK,
       bg_color=Color.WHITE
     )
@@ -231,9 +235,9 @@ class DataCollector():
       view=self._view,
       title=title,
       footer=self._footer,
-      border=1,
+      border=border,
       padding=5,
-      justify=Justify.RIGHT,
+      justify=Justify.CENTER,
       color=Color.BLACK,
       bg_color=Color.WHITE
     )
