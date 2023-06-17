@@ -81,6 +81,10 @@ PIN_INKY_BUSY = board.GP26
 
 FONT_INKY     = 'DejaVuSansMono-Bold-18-subset'
 
+global save_status
+save_status = "__"
+
+
 class DataCollector():
   """ main application class """
 
@@ -270,6 +274,8 @@ class DataCollector():
       "ts":   ts_str
       }
     self.record = ts_str
+    self.record += ","+str(LOGGER_ID)
+    self.record += ","+LOGGER_LOCATION
     self.values = []
     for read_sensor in self._sensors:
       read_sensor()
@@ -391,13 +397,16 @@ class DataCollector():
 
   def save_data(self):
     """ save data """
+    global save_status
+
     print(self.record)
     YMD = self.data["ts"].split("T")[0]
     outfile = f"log_{LOGGER_ID}-{YMD}.csv"
     if HAVE_SD:
         outfile = "/sd/" + outfile
-        with open(outfile, "a") as f:
+        with open(outfile, "a") as f:            
             f.write(f"{self.record}\n")
+            save_status = "SD"
     
   # --- send data   ----------------------------------------------------------
 
@@ -409,6 +418,7 @@ class DataCollector():
 
   def update_display(self):
     """ update display """
+    global save_status
 
     gc.collect()
     if not self._view:
@@ -419,7 +429,7 @@ class DataCollector():
 
     self._view.set_values(self.values)
     dt, ts = self.data['ts'].split("T")
-    self._footer.text = f"at {dt} {ts}"
+    self._footer.text = f"at {dt} {ts} "+save_status
     self.display.root_group = self._panel
     self.display.refresh()
     print("finished refreshing display")
@@ -470,9 +480,11 @@ while True:
     app.save_data()
   except:
     print("exception during save_data()")
+    # Indicate failure on display
+    save_status = ":("
     app.cleanup()
     raise
-
+    
   if TEST_MODE:
     app.blink(count=BLINK_END, blink_time=BLINK_TIME_END)
 
