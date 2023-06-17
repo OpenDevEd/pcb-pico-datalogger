@@ -152,21 +152,25 @@ class DataCollector():
       self._sensors.append(self.read_AHT20)
       self._formats.extend(
         ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"])
-    if HAVE_LTR559:
-      from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
-      self.ltr559 = Pimoroni_LTR559(i2c)
-      self._sensors.append(self.read_LTR559)
-      self._formats.extend(["L/LTR:", "{0:.1f}lx"])
-    if HAVE_BH1750:
-      import adafruit_bh1750
-      self.bh1750 = adafruit_bh1750.BH1750(i2c)
-      self._sensors.append(self.read_bh1750)
-      self._formats.extend(["L/bh1750:", "{0:.1f}lx"])
+    if HAVE_SHT45:
+        pass
     if HAVE_MCP9808:
       import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
       self._sensors.append(self.read_MCP9808)
       self._formats.extend(["T/MCP:", "{0:.1f}°C"])
+    if HAVE_LTR559:
+      from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
+      self.ltr559 = Pimoroni_LTR559(i2c)
+      self._sensors.append(self.read_LTR559)
+      self._formats.extend(["L/LTR:", "{0:.1f}lx"])
+    if HAVE_BH1745:
+        pass
+    if HAVE_BH1750:
+      import adafruit_bh1750
+      self.bh1750 = adafruit_bh1750.BH1750(i2c)
+      self._sensors.append(self.read_bh1750)
+      self._formats.extend(["L/bh1750:", "{0:.1f}lx"])
     if HAVE_ENS160:
       import adadruit_ens160
       self.ens160 = adafruit_ens160.ENS160(i2)
@@ -299,7 +303,7 @@ class DataCollector():
     if (SHOW_UNITS):
       unitT = " °C"
       unitH = " %"
-    self.record += f",{t:0.1f} "+unitT+",{h:0.0f}"+unitH
+    self.record += f",{t:0.1f}"+unitT+f",{h:0.0f}"+unitH
     self.values.extend([None,t])
     self.values.extend([None,h])
 
@@ -492,3 +496,4 @@ while True:
 
 app.configure_wakeup()
 app.shutdown()
+xxx
