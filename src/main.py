@@ -178,14 +178,16 @@ class DataCollector():
       self.bh1750 = adafruit_bh1750.BH1750(i2c)
       self._sensors.append(self.read_bh1750)
       self._formats.extend(["L/bhx0:", "{0:.0f}lx"])
+      self.csv_header += ',L/bhx0 lx'
     if HAVE_ENS160:
       import adadruit_ens160
       self.ens160 = adafruit_ens160.ENS160(i2)
       self._sensors.append(self.read_ENS160)
+      self._formats.extend(["Status:", "{0}"])
       self._formats.extend(["AQI:", "{0}"])
       self._formats.extend(["TVOC:", "{0} ppb"])
       self._formats.extend(["eCO2:", "{0} ppm eq."])
-      self.csv_header += ',AQI,TVOC ppb,eCO2 ppm eq.'
+      self.csv_header += ',status,AQI,TVOC ppb,eCO2 ppm eq.'
     if HAVE_MIC_PDM_MEMS:
       import audiobusio
       self.mic = audiobusio.PDMIn(PIN_PDM_CLK,PIN_PDM_DAT,
@@ -375,6 +377,7 @@ class DataCollector():
     status = self.ens160.data_validity
     self.data["ens160"] = data
     self.record += f",{status},{data['AQI']},{data['TVOC']},{data['eCO2']}"
+    self.values.extend([None,status])
     self.values.extend([None,data['AQI']])
     self.values.extend([None,data['TVOC']])
     self.values.extend([None,data['eCO2']])
