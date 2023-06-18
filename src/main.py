@@ -155,7 +155,7 @@ class DataCollector():
       self._formats.extend(
         ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"])
     if HAVE_SHT45:
-        pass
+      pass
     if HAVE_MCP9808:
       import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
@@ -167,8 +167,8 @@ class DataCollector():
       self._sensors.append(self.read_LTR559)
       self._formats.extend(["L/LTR:", "{0:.1f}lx"])
     if HAVE_BH1745:
-        # self._formats.extend(["L/bhx5:", "{0:.1f}lx"])
-        pass
+      # self._formats.extend(["L/bhx5:", "{0:.1f}lx"])
+      pass
     if HAVE_BH1750:
       import adafruit_bh1750
       self.bh1750 = adafruit_bh1750.BH1750(i2c)
