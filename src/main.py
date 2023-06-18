@@ -79,7 +79,11 @@ PIN_INKY_RST  = board.GP21
 PIN_INKY_DC   = board.GP20
 PIN_INKY_BUSY = board.GP26
 
-FONT_INKY     = 'DejaVuSans-16-subset'
+FONT_INKY     = 'DejaVuSansMono-Bold-18-subset'
+
+global save_status
+save_status = "__"
+
 
 class DataCollector():
   """ main application class """
@@ -152,21 +156,26 @@ class DataCollector():
       self._sensors.append(self.read_AHT20)
       self._formats.extend(
         ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"])
-    if HAVE_LTR559:
-      from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
-      self.ltr559 = Pimoroni_LTR559(i2c)
-      self._sensors.append(self.read_LTR559)
-      self._formats.extend(["L/LTR:", "{0:.1f}lx"])
-    if HAVE_BH1750:
-      import adafruit_bh1750
-      self.bh1750 = adafruit_bh1750.BH1750(i2c)
-      self._sensors.append(self.read_bh1750)
-      self._formats.extend(["L/bh1750:", "{0:.1f}lx"])
+    if HAVE_SHT45:
+        pass
     if HAVE_MCP9808:
       import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
       self._sensors.append(self.read_MCP9808)
       self._formats.extend(["T/MCP:", "{0:.1f}°C"])
+    if HAVE_LTR559:
+      from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
+      self.ltr559 = Pimoroni_LTR559(i2c)
+      self._sensors.append(self.read_LTR559)
+      self._formats.extend(["L/LTR:", "{0:.1f}lx"])
+    if HAVE_BH1745:
+        # self._formats.extend(["L/bhx5:", "{0:.1f}lx"])
+        pass
+    if HAVE_BH1750:
+      import adafruit_bh1750
+      self.bh1750 = adafruit_bh1750.BH1750(i2c)
+      self._sensors.append(self.read_bh1750)
+      self._formats.extend(["L/bhx0:", "{0:.1f}lx"])
     if HAVE_ENS160:
       import adadruit_ens160
       self.ens160 = adafruit_ens160.ENS160(i2)
@@ -266,6 +275,12 @@ class DataCollector():
       "ts":   ts_str
       }
     self.record = ts_str
+    self.header = "timestamp"
+    self.record += ","+str(LOGGER_ID)
+    self.header += ",LOGGER_ID"
+    self.record += ","+LOGGER_LOCATION
+    self.header += ",LOGGER_LOCATION"
+
     self.values = []
     for read_sensor in self._sensors:
       read_sensor()
@@ -279,7 +294,11 @@ class DataCollector():
     level = adc.value *  3 * 3.3 / 65535
     adc.deinit()
     self.data["battery"] = level
-    self.record += f",{level:0.1f}"
+    unit = ""
+    if (SHOW_UNITS):
+      unit = " V"
+    self.record += f",{level:0.1f}"+unit
+    self.header += ",battery /"+unit
     self.values.extend([None,level])
 
   # --- read AHT20   ---------------------------------------------------------
@@ -291,9 +310,32 @@ class DataCollector():
       "temp": t,
       "hum":  h
     }
-    self.record += f",{t:0.1f},{h:0.0f}"
+    unitT = ""
+    unitH = ""
+    if (SHOW_UNITS):
+      unitT = " °C"
+      unitH = " %"
+    self.record += f",{t:0.1f}"+unitT+f",{h:0.0f}"+unitH
+    self.header += f",AHT20: temperature /"+unitT+",AHT20: rel humidity /"+unitH
     self.values.extend([None,t])
     self.values.extend([None,h])
+
+  # --- read SHT45   ---------------------------------------------------------
+  # to do
+    
+  # --- read MCP9808   -------------------------------------------------------
+
+  def read_MCP9808(self):
+    t = self.mcp9808.temperature
+    self.data["mcp9808"] = {
+      "temp": t
+    }
+    unit = ""
+    if (SHOW_UNITS):
+      unit = " °C"
+    self.record += f",{t:0.1f}"+unit
+    self.header += ",MCP9808: temperature /"+unit
+    self.values.extend([None,t])
 
   # --- read LTR559   --------------------------------------------------------
 
@@ -302,7 +344,11 @@ class DataCollector():
     self.data["ltr559"] = {
       "lux": lux
     }
-    self.record += f",{lux:0.1f}"
+    unit = ""
+    if (SHOW_UNITS):
+      unit = " lx"
+    self.record += f",{lux:0.1f}"+unit
+    self.header += ",LTR559: luminosity /"+unit
     self.values.extend([None,lux])
 
   # --- read bh1750   --------------------------------------------------------
@@ -312,18 +358,15 @@ class DataCollector():
     self.data["bh1750"] = {
       "lux": lux
     }
-    self.record += f",{lux:0.1f}"
+    unit = ""
+    if (SHOW_UNITS):
+      unit = " lx"
+    self.record += f",{lux:0.1f}"+unit
+    self.header += ",bh1750: luminosity / " + unit
     self.values.extend([None,lux])
 
-  # --- read MCP9808   -------------------------------------------------------
-
-  def read_MCP9808(self):
-    t = self.mcp9808.temperature
-    self.data["mcp9808"] = {
-      "temp": t
-    }
-    self.record += f",{t:0.1f}"
-    self.values.extend([None,t])
+  # --- read bh1745 --------------------------------------------------------
+  # to do
 
   # --- read PDM-mic    ------------------------------------------------------
 
@@ -341,6 +384,7 @@ class DataCollector():
       "mag": mag
     }
     self.record += f",{mag:0.0f}"
+    self.header += ",Ada-PDM: noise level"
     self.values.extend([None,mag])
 
   # --- read ENS160   --------------------------------------------------------
@@ -353,21 +397,38 @@ class DataCollector():
     status = self.ens160.data_validity
     self.data["ens160"] = data
     self.record += f",{status},{data['AQI']},{data['TVOC']},{data['eCO2']}"
+    self.header += ",ENS160: AQI, ENS160: TVOC/ppm, ENS160: eCO2/e-ppm"
     self.values.extend([None,data['AQI']])
     self.values.extend([None,data['TVOC']])
     self.values.extend([None,data['eCO2']])
 
   # --- save data   ----------------------------------------------------------
 
+  def file_exists(self, filename):
+    import os  
+    try:
+      status = os.stat(filename)
+      return True
+    except OSError:
+      return False
+
   def save_data(self):
     """ save data """
+    global save_status
+
     print(self.record)
     YMD = self.data["ts"].split("T")[0]
-    outfile = f"log_{LOGGER_ID}-{YMD}.csv"
+    outfile = f"log_{LOGGER_ID}_{YMD}.csv"
     if HAVE_SD:
-        outfile = "/sd/" + outfile
+      save_status = "??"
+      outfile = "/sd/" + outfile
+      if not(self.file_exists(outfile)):
         with open(outfile, "a") as f:
-            f.write(f"{self.record}\n")
+          f.write(f"{self.header}\n")
+          print(self.header)
+      with open(outfile, "a") as f:
+        f.write(f"{self.record}\n")
+        save_status = "SD"
     
   # --- send data   ----------------------------------------------------------
 
@@ -379,6 +440,7 @@ class DataCollector():
 
   def update_display(self):
     """ update display """
+    global save_status
 
     gc.collect()
     if not self._view:
@@ -389,7 +451,7 @@ class DataCollector():
 
     self._view.set_values(self.values)
     dt, ts = self.data['ts'].split("T")
-    self._footer.text = f"at {dt} {ts}"
+    self._footer.text = f"at {dt} {ts} "+save_status
     self.display.root_group = self._panel
     self.display.refresh()
     print("finished refreshing display")
@@ -440,9 +502,11 @@ while True:
     app.save_data()
   except:
     print("exception during save_data()")
+    # Indicate failure on display
+    save_status = ":("
     app.cleanup()
     raise
-
+    
   if TEST_MODE:
     app.blink(count=BLINK_END, blink_time=BLINK_TIME_END)
 
