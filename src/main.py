@@ -213,8 +213,11 @@ class DataCollector():
       dim = (2,2)
     elif len(self._formats) < 7:
       dim = (3,2)
-    else:
+    elif len(self._formats) < 13:
       dim = (3,4)
+    else:
+      raise Exception("too many sensors")
+
     self._formats.extend(
       ["" for _ in range(dim[0]*dim[1] - len(self._formats))])
     self._view = DataView(
