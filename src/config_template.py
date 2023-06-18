@@ -48,3 +48,6 @@ LOGGER_NAME  = 'Darasa Kamili'  # Perfect Classroom
 LOGGER_ID    = '000'            # Change this to your logger id
 LOGGER_LOCATION = '6G5X46G4+XQ' # Plus Code for Dar airport
 LOGGER_TITLE = LOGGER_NAME + " " + LOGGER_LOCATION
+
+# font for the display
+FONT_DISPLAY     = 'DejaVuSansMono-Bold-18-subset'

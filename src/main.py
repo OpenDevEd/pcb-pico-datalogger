@@ -79,8 +79,6 @@ PIN_INKY_RST  = board.GP21
 PIN_INKY_DC   = board.GP20
 PIN_INKY_BUSY = board.GP26
 
-FONT_INKY     = 'DejaVuSansMono-Bold-18-subset'
-
 global save_status
 save_status = "__"
 
@@ -214,7 +212,7 @@ class DataCollector():
       width=self.display.width-2-(dim[1]-1),
       height=int(0.6*self.display.height),
       justify=Justify.LEFT,
-      fontname=f"fonts/{FONT_INKY}.bdf",
+      fontname=f"fonts/{FONT_DISPLAY}.bdf",
       formats=self._formats,
       border=1,
       divider=1,
@@ -228,11 +226,11 @@ class DataCollector():
 
     # create DataPanel
     title = PanelText(text=f"{LOGGER_TITLE}",
-                      fontname=f"fonts/{FONT_INKY}.bdf",
+                      fontname=f"fonts/{FONT_DISPLAY}.bdf",
                       justify=Justify.CENTER)
 
     self._footer = PanelText(text=f"Updated: ",
-                             fontname=f"fonts/{FONT_INKY}.bdf",
+                             fontname=f"fonts/{FONT_DISPLAY}.bdf",
                              justify=Justify.RIGHT)
     self._panel = DataPanel(
       width=self.display.width,
