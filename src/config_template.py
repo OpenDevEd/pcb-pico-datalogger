@@ -28,9 +28,9 @@ HAVE_LORA    = False               # Adafruit RFM96W LoRa Radio Transceiver Brea
 
 # hardware configuration settings for sensors
 HAVE_AHT20   = True       # Sense temperature and humidity with an Adafruit AHT20 sensor connected on I2C bus
+HAVE_MCP9808 = True       # Sense temperature with a Adafruit MCP9808 sensor connected on I2C bus
 HAVE_LTR559  = True       # Sense light level in lux with a Pimoroni LTR-559 sensor connected on I2C bus
 HAVE_BH1750  = False      # Sense light level with a BH1750 sensor connected on I2C bus
-HAVE_MCP9808 = True       # Sense temperature with a Adafruit MCP9808 sensor connected on I2C bus
 HAVE_ENS160  = False      # Sense environmental properties with an ENS160 sensor connected on I2C bus
 HAVE_MIC_PDM_MEMS = True  # Sense noise with a MIC-PDM-MEMS sensor connected via PDMio interface
 
@@ -41,9 +41,13 @@ HAVE_BH1745  = False      # Sense light level with a Pimoroni BH1745 sensor conn
 # hardware configuration configuration settings - I2S mic not yet supported in Circuitpython
 HAVE_MIC_I2S_MEMS = False # Sense noise with a MIC-I2S-MEMS sensor connected on I2
 
+SHOW_UNITS = False # Show units in the csv output
 
 # Logger identification constants
 LOGGER_NAME  = 'Darasa Kamili'  # Perfect Classroom
 LOGGER_ID    = '000'            # Change this to your logger id
 LOGGER_LOCATION = '6G5X46G4+XQ' # Plus Code for Dar airport
 LOGGER_TITLE = LOGGER_NAME + " " + LOGGER_LOCATION
+
+# font for the display
+FONT_DISPLAY     = 'DejaVuSansMono-Bold-18-subset'
