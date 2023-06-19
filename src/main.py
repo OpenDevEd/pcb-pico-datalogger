@@ -404,14 +404,15 @@ class DataCollector():
       self.pretty_print()
     else:
       print(self.record)
-    YMD = self.data["ts"].split("T")[0]
-    outfile = f"/sd/log_{LOGGER_ID}_{YMD}.csv"
+
     if HAVE_SD:
+      YMD = self.data["ts"].split("T")[0]
+      outfile = f"/sd/log_{LOGGER_ID}_{YMD}.csv"
+      new_csv = not self.file_exists(outfile)
       self.save_status = ":("
       with open(outfile, "a") as f:
-        if not self.file_exists(outfile):
+        if new_csv:
           f.write(f"{self.csv_header}\n")
-          print(self.csv_header)
         f.write(f"{self.record}\n")
         self.save_status = "SD"
 
