@@ -144,7 +144,7 @@ class DataCollector():
 
     # sensors
     self.csv_header = f"#ID: {LOGGER_ID}\n#Location: {LOGGER_LOCATION}\n"
-    self.csv_header += "#ts,"
+    self.csv_header += "#ts"
 
     self._formats = ["Bat:","{0:0.1f}V"]
     self.csv_header += ',Bat V'
@@ -400,17 +400,31 @@ class DataCollector():
   def save_data(self):
     """ save data """
 
-    print(self.record)
+    if SHOW_UNITS:
+      self.pretty_print()
+    else:
+      print(self.record)
     YMD = self.data["ts"].split("T")[0]
     outfile = f"/sd/log_{LOGGER_ID}_{YMD}.csv"
     if HAVE_SD:
       self.save_status = ":("
       with open(outfile, "a") as f:
-        if SHOW_UNITS and not(self.file_exists(outfile)):
+        if not self.file_exists(outfile):
           f.write(f"{self.csv_header}\n")
           print(self.csv_header)
         f.write(f"{self.record}\n")
         self.save_status = "SD"
+
+  # --- pretty-print data to console   ---------------------------------------
+
+  def pretty_print(self):
+    """ pretty-print data to console """
+
+    columns = self.csv_header.split('#')[-1].split(',')
+    merged = zip(columns,self.record.split(','))
+    for label,value in merged:
+      space = '\t\t' if len(label) < 8 else '\t'
+      print(f"{label}:{space}{value}")
     
   # --- send data   ----------------------------------------------------------
 
