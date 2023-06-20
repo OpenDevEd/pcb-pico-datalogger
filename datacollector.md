@@ -42,21 +42,20 @@ the device.
 Configuration
 -------------
 
-Configuration needs a file `config.py` in the root of the device. This
-file is not under version-control, so it won't be changed by subsequent
-pulls.
+Configuration needs various extra files. These files are not tracked
+by github and are therefore not part of the repository:
 
-Copy the file `config_template.py` to `config.py` and edit to your needs.
-
-A second level of configuration is optional. A file with the same name
-on the SD-card will be read and will override any default settings.
+  - `config.py`: copy `config_template.py` to `config.py` and adapt to your needs
+  - `config.py` on sd-card: overrides for (a subset of) values
+  - `secrets.py`: see below
+  - `log_config.py`: copy `log_config_template.py` to `log_config.py`
 
 Most importantly, change the value of `LOGGER_xxx`. The csv-file written
 by the datacollector will be named `log_<LOGGER_ID>.csv`. This way, every
 datalogger will create a file with a distinct name.
 
-You also have to provide a file `src/secrets.py` with your WLAN-credentials.
-Rename `src/sec_template.py` and adapt it to your environment:
+You also have to provide a file `secrets.py` with your WLAN-credentials.
+Rename `sec_template.py` and adapt it to your environment:
 
     class Settings:
       pass
@@ -73,8 +72,22 @@ Rename `src/sec_template.py` and adapt it to your environment:
     secrets.time_url = 'http://worldtimeapi.org/api/ip'
 
 Note that WLAN-access is only necessary for intial time-configuration.
-Don't forget to remove `src/secrets.py` after rtc-initialization if you
+Don't forget to remove `secrets.py` after rtc-initialization if you
 want your WLAN-credentials to be secret.
+
+
+Logging
+-------
+
+The file `log_config.py` (see above) defines the destination of technical
+log messages. Various options exist:
+
+  - no output
+  - output to the console
+  - output to the file `messages.log` on the sd-card
+  - output to UART-serial
+
+The last option lets you monitor the system even when running on batteries.
 
 
 Initial RTC-Setup
