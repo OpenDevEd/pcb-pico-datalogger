@@ -21,6 +21,7 @@ import alarm
 import array
 import math
 import os
+import csv
 
 from digitalio import DigitalInOut, Direction, Pull
 from analogio import AnalogIn
@@ -97,7 +98,17 @@ class DataCollector():
 
   def setup(self):
     """ create hardware-objects """
+    #creatin csv for sensors serial numbers
+    self.csv_serial_numbers = "sensors_serial_numbers.csv"  
 
+    #get serial number
+    def get_serial_number(sensor):
+      try:
+          serial_number = sensor.serial_number
+          return serial_number
+      except AttributeError:
+          return None
+    
     # spi - SD-card and display
     if HAVE_SD:
       self._spi = busio.SPI(PIN_SD_SCK,PIN_SD_MOSI,PIN_SD_MISO)
@@ -166,6 +177,11 @@ class DataCollector():
       self._formats.extend(
         ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"])
       self.csv_header += ',T/AHT °C,H/AHT %rH'
+            #save to csv
+      with open(self.csv_serial_numbers, mode='w', newline='') as file:
+        writer.writerow(["AHT20", get_serial_number(self.aht20)])
+      file.close()
+
     if HAVE_SHT45:
       import adafruit_sht4x
       self.sht45 = adafruit_sht4x.SHT4x(i2c)
@@ -173,27 +189,54 @@ class DataCollector():
       self._formats.extend(
         ["T/SHT:", "{0:.1f}°C","H/SHT:", "{0:.0f}%rH"])
       self.csv_header += ',T/SHT °C,H/SHT %rH'
+            #save to csv
+      with open(self.csv_serial_numbers, mode='w', newline='') as file:
+        writer.writerow(["SHT45", get_serial_number(self.sht45)])
+      file.close()
+
     if HAVE_MCP9808:
       import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
       self._sensors.append(self.read_MCP9808)
       self._formats.extend(["T/MCP:", "{0:.1f}°C"])
       self.csv_header += ',T/MCP °C'
+      #save to csv
+      with open(self.csv_serial_numbers, mode='w', newline='') as file:
+        writer.writerow(["MCP9808", get_serial_number(self.mcp9808)])
+      file.close()
+
     if HAVE_LTR559:
       from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
       self.ltr559 = Pimoroni_LTR559(i2c)
       self._sensors.append(self.read_LTR559)
       self._formats.extend(["L/LTR:", "{0:.0f}lx"])
       self.csv_header += ',L/LTR lx'
+      with open(self.csv_serial_numbers, mode='w', newline='') as file:
+        writer.writerow(["LTR559", get_serial_number(self.ltr559)])
+      file.close()
+      
     if HAVE_BH1745:
+      import adafruit_bh1745
+      self.bh1745 = adafruit_bh1745.BH1745(i2c)
+      self._sensors.append(self.read_bh1745)
       self._formats.extend(["L/bhx5:", "{0:.0f}lx"])
       self.csv_header += ',L/bhx5 lx'
+      #save to csv
+      with open(self.csv_serial_numbers, mode='w', newline='') as file:
+        writer.writerow(["BH1745", get_serial_number( self.bh1745)])
+      file.close()
+
     if HAVE_BH1750:
       import adafruit_bh1750
       self.bh1750 = adafruit_bh1750.BH1750(i2c)
       self._sensors.append(self.read_bh1750)
       self._formats.extend(["L/bhx0:", "{0:.0f}lx"])
       self.csv_header += ',L/bhx0 lx'
+            #save to csv
+      with open(self.csv_serial_numbers, mode='w', newline='') as file:
+        writer.writerow(["BH1750",get_serial_number(self.bh1750)])
+      file.close()
+
     if HAVE_ENS160:
       import adadruit_ens160
       self.ens160 = adafruit_ens160.ENS160(i2)
@@ -203,6 +246,11 @@ class DataCollector():
       self._formats.extend(["TVOC:", "{0} ppb"])
       self._formats.extend(["eCO2:", "{0} ppm eq."])
       self.csv_header += ',status,AQI,TVOC ppb,eCO2 ppm eq.'
+     #save to csv
+      with open(self.csv_serial_numbers, mode='w', newline='') as file:
+        writer.writerow(["HAVE_ENS160", get_serial_number(self.ens160)])
+      file.close()
+
     if HAVE_MIC_PDM_MEMS:
       import audiobusio
       self.mic = audiobusio.PDMIn(PIN_PDM_CLK,PIN_PDM_DAT,
@@ -210,6 +258,11 @@ class DataCollector():
       self._sensors.append(self.read_PDM)
       self._formats.extend(["Noise:", "{0:0.0f}"])
       self.csv_header += ',Noise'
+      #save to csv
+      with open(self.csv_serial_numbers, mode='w', newline='') as file:
+        writer.writerow(["PDM_MEMS", get_serial_number(self.mic )])
+      file.close()
+
 
     # just for testing
     if TEST_MODE:
