@@ -167,7 +167,12 @@ class DataCollector():
         ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"])
       self.csv_header += ',T/AHT °C,H/AHT %rH'
     if HAVE_SHT45:
-      pass
+      import adafruit_sht4x
+      self.sht45 = adafruit_sht4x.SHT4x(i2c)
+      self._sensors.append(self.read_SHT45)
+      self._formats.extend(
+        ["T/SHT:", "{0:.1f}°C","H/SHT:", "{0:.0f}%rH"])
+      self.csv_header += ',T/SHT °C,H/SHT %rH'
     if HAVE_MCP9808:
       import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
@@ -328,7 +333,16 @@ class DataCollector():
 
   # --- read SHT45   ---------------------------------------------------------
   # to do
-    
+  def read_SHT45(self):
+    t = self.sht45.temperature
+    h = self.sht45.relative_humidity
+    self.data["sht45"] = {
+      "temp": t,
+      "hum":  h
+    }
+    self.record += f",{t:0.1f},{h:0.0f}"
+    self.values.extend([None,t])
+    self.values.extend([None,h])
   # --- read MCP9808   -------------------------------------------------------
 
   def read_MCP9808(self):
