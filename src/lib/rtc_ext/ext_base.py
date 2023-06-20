@@ -8,6 +8,7 @@
 
 import rtc
 import time
+from log_writer import Logger
 
 # --- class ExtBase   ----------------------------------------------------------
 
@@ -18,6 +19,7 @@ class ExtBase:
   def __init__(self,rtc_ext,wifi=None,net_update=False):
     """ constructor """
 
+    self.logger      = Logger()            # reuse global settings
     self._rtc_ext    = rtc_ext
     self._wifi       = wifi
     self._net_update = net_update
@@ -60,7 +62,7 @@ class ExtBase:
 
   def print_ts(self,label,ts):
     """ print struct_time """
-    print("%s: %04d-%02d-%02d %02d:%02d:%02d" %
+    self.logger.print("%s: %04d-%02d-%02d %02d:%02d:%02d" %
           (label,ts.tm_year,ts.tm_mon,ts.tm_mday,
            ts.tm_hour,ts.tm_min,ts.tm_sec)
           )
@@ -76,17 +78,17 @@ class ExtBase:
       if self._lost_power() or self._check_rtc(self._rtc_ext):
         self.print_ts("rtc ext",self._rtc_ext.datetime)
         if not self._fetch_time():
-          print("rtc-ext not updated from time-server")
-          print("setting rtc-ext to 2022-01-01 12:00:00")
+          self.logger.print("rtc-ext not updated from time-server")
+          self.logger.print("setting rtc-ext to 2022-01-01 12:00:00")
           self._rtc_ext.datetime = time.struct_time((2022,1,1,12,00,00,5,1,-1))
         else:
-          print("rtc-ext updated from time-server")
-      print("updating internal rtc from external rtc")
+          self.logger.print("rtc-ext updated from time-server")
+      self.logger.print("updating internal rtc from external rtc")
       ext_ts = self._rtc_ext.datetime   # needs two statements!
       self._rtc_int.datetime = ext_ts
       self.print_ts("new time",ext_ts)
     else:
-      print("assuming valid rtc int")
+      self.logger.print("assuming valid rtc int")
 
   # --- update time from time-server   ---------------------------------------
 
@@ -94,7 +96,7 @@ class ExtBase:
     """ update time from time-server """
 
     if not self._net_update:
-      print("net_update not set")
+      self.logger.print("net_update not set")
       return False
 
     try:
@@ -124,7 +126,7 @@ class ExtBase:
     week_day = 6 if week_day == 0 else week_day-1
     is_dst   = int(response["dst"])
 
-    self._rtc_ext = time.struct_time(
+    self._rtc_ext.datetime = time.struct_time(
       (year, month, mday, hours, minutes, seconds, week_day, year_day, is_dst))
     return True
 

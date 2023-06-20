@@ -13,6 +13,7 @@ import time
 import socketpool
 import adafruit_requests
 
+from log_writer import Logger
 from secrets import secrets
 
 class WifiImpl:
@@ -22,6 +23,8 @@ class WifiImpl:
 
   def __init__(self):
     """ constructor """
+
+    self.logger = Logger()                 # reuse global settings
 
     if not hasattr(secrets,'channel'):
       secrets.channel = 0
@@ -34,7 +37,7 @@ class WifiImpl:
     """ initialize connection """
 
     import wifi
-    print("connecting to %s" % secrets.ssid)
+    self.logger.print("connecting to %s" % secrets.ssid)
     retries = secrets.retry
     while True:
       try:
@@ -45,13 +48,13 @@ class WifiImpl:
                            )
         break
       except:
-        print("could not connect to %s" % secrets.ssid)
+        self.logger.print("could not connect to %s" % secrets.ssid)
         retries -= 1
         if retries == 0:
           raise
         time.sleep(1)
         continue
-    print("connected to %s" % secrets.ssid)
+    self.logger.print("connected to %s" % secrets.ssid)
     pool = socketpool.SocketPool(wifi.radio)
     self._requests = adafruit_requests.Session(pool)
 
