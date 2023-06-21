@@ -502,6 +502,7 @@ class DataCollector():
         if new_csv:
           f.write(f"{self.csv_header}\n")
           #write serials
+          f.write(f"{self.csv_serials}\n")
         f.write(f"{self.record}\n")
         self.save_status = "SD"
 
