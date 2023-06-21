@@ -166,9 +166,11 @@ class DataCollector():
     # sensors
     self.csv_header = f"#ID: {LOGGER_ID}\n#Location: {LOGGER_LOCATION}\n"
     self.csv_header += "#ts"
+    self.csv_serials = "#Serials"
 
     self._formats = ["Bat:","{0:0.1f}V"]
     self.csv_header += ',Bat V'
+    self.csv_serials += "#Battery,None\n"
     self._sensors = [self.read_battery]    # list of readout-methods
     if HAVE_AHT20:
       import adafruit_ahtx0
@@ -176,11 +178,13 @@ class DataCollector():
       self._sensors.append(self.read_AHT20)
       self._formats.extend(
         ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"])
-      self.csv_header += ',T/AHT °C,H/AHT %rH'
-            #save to csv
+      self.csv_header += 'T/AHT °C,H/AHT %rH'
+      self.csv_serials += "#AHT20"+get_serial_number(self.aht20)+"\n"
+      
+      """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["AHT20", get_serial_number(self.aht20)])
-      file.close()
+      file.close()"""
 
     if HAVE_SHT45:
       import adafruit_sht4x
@@ -189,10 +193,11 @@ class DataCollector():
       self._formats.extend(
         ["T/SHT:", "{0:.1f}°C","H/SHT:", "{0:.0f}%rH"])
       self.csv_header += ',T/SHT °C,H/SHT %rH'
-            #save to csv
+      self.csv_serials += "#SHT45"+get_serial_number(self.sht45)+"\n"
+      """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["SHT45", get_serial_number(self.sht45)])
-      file.close()
+      file.close()"""
 
     if HAVE_MCP9808:
       import adafruit_mcp9808
@@ -200,10 +205,11 @@ class DataCollector():
       self._sensors.append(self.read_MCP9808)
       self._formats.extend(["T/MCP:", "{0:.1f}°C"])
       self.csv_header += ',T/MCP °C'
-      #save to csv
+      self.csv_serials += "#MCP9808"+get_serial_number(self.mcp9808)+"\n"
+      """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["MCP9808", get_serial_number(self.mcp9808)])
-      file.close()
+      file.close()"""
 
     if HAVE_LTR559:
       from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
@@ -211,9 +217,10 @@ class DataCollector():
       self._sensors.append(self.read_LTR559)
       self._formats.extend(["L/LTR:", "{0:.0f}lx"])
       self.csv_header += ',L/LTR lx'
-      with open(self.csv_serial_numbers, mode='w', newline='') as file:
+      self.csv_serials += "#LTR559"+get_serial_number(self.ltr559)+"\n"
+      """with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["LTR559", get_serial_number(self.ltr559)])
-      file.close()
+      file.close()"""
       
     if HAVE_BH1745:
       import adafruit_bh1745
@@ -221,10 +228,11 @@ class DataCollector():
       self._sensors.append(self.read_bh1745)
       self._formats.extend(["L/bhx5:", "{0:.0f}lx"])
       self.csv_header += ',L/bhx5 lx'
-      #save to csv
+      self.csv_serials += "#BH1745"+get_serial_number(self.bh1745)+"\n"
+      """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["BH1745", get_serial_number( self.bh1745)])
-      file.close()
+      file.close()"""
 
     if HAVE_BH1750:
       import adafruit_bh1750
@@ -232,10 +240,11 @@ class DataCollector():
       self._sensors.append(self.read_bh1750)
       self._formats.extend(["L/bhx0:", "{0:.0f}lx"])
       self.csv_header += ',L/bhx0 lx'
-            #save to csv
+      self.csv_serials += "#BH1750"+get_serial_number(self.bh1750)+"\n"
+      """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["BH1750",get_serial_number(self.bh1750)])
-      file.close()
+      file.close()"""
 
     if HAVE_ENS160:
       import adadruit_ens160
@@ -246,10 +255,11 @@ class DataCollector():
       self._formats.extend(["TVOC:", "{0} ppb"])
       self._formats.extend(["eCO2:", "{0} ppm eq."])
       self.csv_header += ',status,AQI,TVOC ppb,eCO2 ppm eq.'
-     #save to csv
+      self.csv_serials += "#ENS160"+get_serial_number(self.ens160)+"\n"
+      """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["HAVE_ENS160", get_serial_number(self.ens160)])
-      file.close()
+      file.close()"""
 
     if HAVE_MIC_PDM_MEMS:
       import audiobusio
@@ -258,10 +268,11 @@ class DataCollector():
       self._sensors.append(self.read_PDM)
       self._formats.extend(["Noise:", "{0:0.0f}"])
       self.csv_header += ',Noise'
-      #save to csv
+      self.csv_serials += "#Mic"+get_serial_number(self.mic)+"\n"
+      """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["PDM_MEMS", get_serial_number(self.mic )])
-      file.close()
+      file.close()"""
 
 
     # just for testing
@@ -490,6 +501,7 @@ class DataCollector():
       with open(outfile, "a") as f:
         if new_csv:
           f.write(f"{self.csv_header}\n")
+          #write serials
         f.write(f"{self.record}\n")
         self.save_status = "SD"
 
