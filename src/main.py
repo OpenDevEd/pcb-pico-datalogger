@@ -274,6 +274,7 @@ class DataCollector():
         writer.writerow(["PDM_MEMS", get_serial_number(self.mic )])
       file.close()"""
 
+    g_logger.print(self.csv_serials)
 
     # just for testing
     if TEST_MODE:
@@ -575,7 +576,6 @@ g_logger.print("main program start")
 if TEST_MODE:
   time.sleep(5)                        # give console some time to initialize
 g_logger.print("setup of hardware")
-
 app = DataCollector()
 app.setup()
 
