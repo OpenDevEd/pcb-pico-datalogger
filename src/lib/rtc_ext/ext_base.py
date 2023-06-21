@@ -88,7 +88,11 @@ class ExtBase:
       self._rtc_int.datetime = ext_ts
       self.print_ts("new time",ext_ts)
     else:
+      # this will typically happen when starting from Thonny
       self.logger.print("assuming valid rtc int")
+      int_ts = self._rtc_int.datetime   # needs two statements!
+      self._rtc_ext.datetime = int_ts
+      self.logger.print("updated external rtc from internal rtc")
 
   # --- update time from time-server   ---------------------------------------
 
