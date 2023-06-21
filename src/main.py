@@ -43,6 +43,14 @@ from dataviews.Base import Color, Justify
 from dataviews.DataView  import DataView
 from dataviews.DataPanel import DataPanel, PanelText
 
+# --- early configuration of the log-destination   ---------------------------
+
+try:
+  from log_config import g_logger
+except:
+  from log_writer import Logger
+  g_logger = Logger('console')
+
 # --- default configuration is in config.py on the pico.
 #     You can override it also with a config.py on the sd-card   -------------
 
@@ -51,7 +59,7 @@ def import_config():
   import config
   for var in dir(config):
     if var[0] != '_':
-      print(f"{var}={getattr(config,var)}")
+      g_logger.print(f"{var}={getattr(config,var)}")
       globals()[var] = getattr(config,var)
   config = None
   gc.collect()
@@ -80,6 +88,8 @@ PIN_INKY_RST  = board.GP21
 PIN_INKY_DC   = board.GP20
 PIN_INKY_BUSY = board.GP26
 
+# --- main application class   -----------------------------------------------
+
 class DataCollector():
   """ main application class """
 
@@ -87,6 +97,24 @@ class DataCollector():
 
   def setup(self):
     """ create hardware-objects """
+
+    # spi - SD-card and display
+    if HAVE_SD:
+      self._spi = busio.SPI(PIN_SD_SCK,PIN_SD_MOSI,PIN_SD_MISO)
+
+    # early setup of SD-card (in case we send debug-logs to sd-card)
+    if HAVE_SD:
+      self.sd_cs = DigitalInOut(PIN_SD_CS)
+      sdcard     = adafruit_sdcard.SDCard(self._spi,self.sd_cs)
+      self.vfs   = storage.VfsFat(sdcard)
+      storage.mount(self.vfs, "/sd")
+      try:
+        import sys
+        sys.path.insert(0,"/sd")
+        import_config()
+        sys.path.pop(0)
+      except:
+        g_logger.print("no configuration found in /sd/config.py")
 
     # Initialse i2c bus for use by sensors and RTC
     i2c = busio.I2C(PIN_SCL,PIN_SDA)
@@ -104,24 +132,6 @@ class DataCollector():
     self.vbus_sense           = DigitalInOut(board.VBUS_SENSE)
     self.vbus_sense.direction = Direction.INPUT
 
-    # spi - SD-card and display
-    if HAVE_SD:
-      self._spi = busio.SPI(PIN_SD_SCK,PIN_SD_MOSI,PIN_SD_MISO)
-
-    # SD-card
-    if HAVE_SD:
-      self.sd_cs = DigitalInOut(PIN_SD_CS)
-      sdcard     = adafruit_sdcard.SDCard(self._spi,self.sd_cs)
-      self.vfs   = storage.VfsFat(sdcard)
-      storage.mount(self.vfs, "/sd")
-      try:
-        import sys
-        sys.path.insert(0,"/sd")
-        import_config()
-        sys.path.pop(0)
-      except:
-        print("no configuration found in /sd/config.py")
-
     # display
     global HAVE_DISPLAY
     if HAVE_DISPLAY:
@@ -138,7 +148,7 @@ class DataCollector():
         self.display = DisplayFactory.display_pack(self._spi)
         self.display.auto_refresh = False
       else:
-        print(f"unsupported display: {HAVE_DISPLAY}")
+        g_logger.print(f"unsupported display: {HAVE_DISPLAY}")
         HAVE_DISPLAY = None
       self._view = None
 
@@ -157,7 +167,12 @@ class DataCollector():
         ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"])
       self.csv_header += ',T/AHT °C,H/AHT %rH'
     if HAVE_SHT45:
-      pass
+      import adafruit_sht4x
+      self.sht45 = adafruit_sht4x.SHT4x(i2c)
+      self._sensors.append(self.read_SHT45)
+      self._formats.extend(
+        ["T/SHT:", "{0:.1f}°C","H/SHT:", "{0:.0f}%rH"])
+      self.csv_header += ',T/SHT °C,H/SHT %rH'
     if HAVE_MCP9808:
       import adafruit_mcp9808
       self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
@@ -322,7 +337,16 @@ class DataCollector():
 
   # --- read SHT45   ---------------------------------------------------------
   # to do
-    
+  def read_SHT45(self):
+    t = self.sht45.temperature
+    h = self.sht45.relative_humidity
+    self.data["sht45"] = {
+      "temp": t,
+      "hum":  h
+    }
+    self.record += f",{t:0.1f},{h:0.0f}"
+    self.values.extend([None,t])
+    self.values.extend([None,h])
   # --- read MCP9808   -------------------------------------------------------
 
   def read_MCP9808(self):
@@ -407,15 +431,16 @@ class DataCollector():
     if SHOW_UNITS:
       self.pretty_print()
     else:
-      print(self.record)
-    YMD = self.data["ts"].split("T")[0]
-    outfile = f"/sd/log_{LOGGER_ID}_{YMD}.csv"
+      g_logger.print(self.record)
+
     if HAVE_SD:
+      YMD = self.data["ts"].split("T")[0]
+      outfile = f"/sd/log_{LOGGER_ID}_{YMD}.csv"
+      new_csv = not self.file_exists(outfile)
       self.save_status = ":("
       with open(outfile, "a") as f:
-        if not self.file_exists(outfile):
+        if new_csv:
           f.write(f"{self.csv_header}\n")
-          print(self.csv_header)
         f.write(f"{self.record}\n")
         self.save_status = "SD"
 
@@ -428,13 +453,13 @@ class DataCollector():
     merged = zip(columns,self.record.split(','))
     for label,value in merged:
       space = '\t\t' if len(label) < 8 else '\t'
-      print(f"{label}:{space}{value}")
+      g_logger.print(f"{label}:{space}{value}")
     
   # --- send data   ----------------------------------------------------------
 
   def send_data(self):
     """ send data using LORA """
-    print(f"not yet implemented!")
+    g_logger.print(f"not yet implemented!")
 
   # --- update display   -----------------------------------------------------
 
@@ -453,7 +478,7 @@ class DataCollector():
     self._footer.text = f"at {dt} {ts} {self.save_status}"
     self.display.root_group = self._panel
     self.display.refresh()
-    print("finished refreshing display")
+    g_logger.print("finished refreshing display")
 
     if not self.continuous_mode():
       time.sleep(3)              # refresh returns before it is finished
@@ -484,10 +509,10 @@ class DataCollector():
 
 # --- main program   ---------------------------------------------------------
 
-print("main program start")
+g_logger.print("main program start")
 if TEST_MODE:
   time.sleep(5)                        # give console some time to initialize
-print("setup of hardware")
+g_logger.print("setup of hardware")
 
 app = DataCollector()
 app.setup()
@@ -500,7 +525,7 @@ while True:
   try:
     app.save_data()
   except:
-    print("exception during save_data()")
+    g_logger.print("exception during save_data()")
     app.cleanup()
     raise
     
@@ -511,7 +536,7 @@ while True:
     try:
       app.update_display()
     except:
-      print("exception during update_display()")
+      g_logger.print("exception during update_display()")
       app.cleanup()
       raise
 
@@ -520,7 +545,7 @@ while True:
 
   # check if running on USB and sleep instead of shutdown
   if app.continuous_mode():
-    print(f"continuous mode: next measurement in {CONT_INT} seconds")
+    g_logger.print(f"continuous mode: next measurement in {CONT_INT} seconds")
     time.sleep(CONT_INT)
   else:
     break
