@@ -312,7 +312,7 @@ class DataCollector():
     columns = self.csv_header.split('#')[-1].split(',')
     merged = zip(columns,self.record.split(','))
     for label,value in merged:
-      space = '\t\t' if len(label) < 8 else '\t'
+      space = '\t\t' if len(label) < 9 else '\t'
       g_logger.print(f"{label}:{space}{value}")
     
   # --- send data   ----------------------------------------------------------
