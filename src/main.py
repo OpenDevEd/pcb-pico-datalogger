@@ -21,9 +21,9 @@ import alarm
 import array
 import math
 import os
+import builtins
 
 from digitalio import DigitalInOut, Direction, Pull
-from analogio import AnalogIn
 
 # import for SD-card
 import storage
@@ -61,7 +61,7 @@ class Settings:
     for var in dir(config):
       if var[0] != '_':
         g_logger.print(f"{var}={getattr(config,var)}")
-        setattr(self,var) = getattr(config,var)
+        setattr(self,var,getattr(config,var))
     config = None
     gc.collect()
 
@@ -159,6 +159,27 @@ class DataCollector():
 
     self.save_status = "__"
 
+    #configure sensors
+    self._configure_sensors(i2c)
+
+  # --- configure sensors   ---------------------------------------------------
+
+  def _configure_sensors(self,i2c):
+    """ configure sensors """
+
+    self._formats = []
+    self.csv_header = f"#ID: {g_config.LOGGER_ID}\n#Location: {g_config.LOGGER_LOCATION}\n"
+    self.csv_header += "#ts"
+
+    self._sensors = []
+    for sensor in g_config.SENSORS.split(' '):
+      sensor_module = builtins.__import__(sensor,None,None,[sensor.upper()],0)
+      sensor_class = getattr(sensor_module,sensor.upper())
+      _sensor = sensor_class(g_config,None,i2c,None,None)
+      self._sensors.append(_sensor.read)
+      self._formats.extend(_sensor.formats)
+      self.csv_header += f",{_sensor.headers}"
+
   # --- create view   ---------------------------------------------------------
 
   def _create_view(self):
@@ -249,7 +270,8 @@ class DataCollector():
 
     self.values = []
     for read_sensor in self._sensors:
-      read_sensor()
+      rec = read_sensor(self.data,self.values)
+      self.record += f",{rec}"
 
   # --- check if file already exists   --------------------------------------
 
