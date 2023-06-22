@@ -18,8 +18,6 @@ import gc
 import time
 import board
 import alarm
-import array
-import math
 import os
 import builtins
 
@@ -79,10 +77,6 @@ PIN_SD_CS   = board.GP22
 PIN_SD_SCK  = board.GP18
 PIN_SD_MOSI = board.GP19
 PIN_SD_MISO = board.GP16
-
-# PDM-mic
-PIN_PDM_CLK = board.GP5
-PIN_PDM_DAT = board.GP28
 
 # display interface (SPI, Inky-Pack)
 PIN_INKY_CS   = board.GP17
