@@ -27,19 +27,7 @@ HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None
 HAVE_LORA    = False               # Adafruit RFM96W LoRa Radio Transceiver Breakout is avaialble
 
 # hardware configuration settings for sensors
-HAVE_AHT20   = True       # Sense temperature and humidity with an Adafruit AHT20 sensor connected on I2C bus
-HAVE_SHT45   = False      # Sense temperature and humidity with a Adafruit SHT45 sensor connected on I2C bus
-HAVE_MCP9808 = True       # Sense temperature with a Adafruit MCP9808 sensor connected on I2C bus
-HAVE_LTR559  = True       # Sense light level in lux with a Pimoroni LTR-559 sensor connected on I2C bus
-HAVE_BH1750  = False      # Sense light level with a BH1750 sensor connected on I2C bus
-HAVE_ENS160  = False      # Sense environmental properties with an ENS160 sensor connected on I2C bus
-HAVE_MIC_PDM_MEMS = True  # Sense noise with a MIC-PDM-MEMS sensor connected via PDMio interface
-
-# hardware configuration configuration settings - not implemented yet
-HAVE_BH1745  = False      # Sense light level with a Pimoroni BH1745 sensor connected on I2C bus
-
-# hardware configuration configuration settings - I2S mic not yet supported in Circuitpython
-HAVE_MIC_I2S_MEMS = False # Sense noise with a MIC-I2S-MEMS sensor connected on I2
+SENSORS = "id battery"             # list of sensors. Each needs a <sensor>.py file
 
 SHOW_UNITS = False # Show units in the csv output
 
