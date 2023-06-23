@@ -51,28 +51,28 @@ MCP9808
   - [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf)
 
 
-BH1745
+BH1750
 ------
 
-  - Measures 
-  - Status: planned
-  - I2C-Breakout: (Adafruit  ????)[https://adafru.it/????]
-  - Address: 
-  - Guide: 
-  - CircuitPython-driver:
-  - [datasheet]()
+  - Measures Light
+  - Status: implemented
+  - I2C-Breakout: (Adafruit  4681)[https://adafru.it/4681]
+  - Address: 0x23 (default) or 0x5C (addr-pin high)
+  - Guide: <https://learn.adafruit.com/adafruit-bh1750-ambient-light-sensor>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_BH1750>
+  - [datasheet](https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf)
 
 
 LTR-559
 -------
 
-  - Measures 
+  - Measures Light
   - Status: implemented
-  - I2C-Breakout: (Adafruit  ????)[https://adafru.it/????]
-  - Address: 
-  - Guide: 
-  - CircuitPython-driver:
-  - [datasheet]()
+  - I2C-Breakout: (Pimoroni PIM413)[https://shop.pimoroni.com/products/ltr-559-light-proximity-sensor-breakout)]
+  - Address: 0x23
+  - Guide: n.a.
+  - CircuitPython-driver: <https://github.com/pimoroni/Pimoroni_CircuitPython_LTR559>
+  - [datasheet](https://optoelectronics.liteon.com/upload/download/DS86-2013-0003/LTR-559ALS-01_DS_V1.pdf)
 
 
 PDM-Micro
