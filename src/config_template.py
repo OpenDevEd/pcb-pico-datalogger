@@ -21,6 +21,7 @@ FORCE_STROBE_MODE     = False      # Use strobe mode (with OFF_MINUTES) even whe
 CONT_INT              = 60         #  interval in continuous mode (in seconds)
 
 # hardware setup
+HAVE_I2C0    = False               # also use second I2C-bus
 HAVE_PCB     = True                # The Pico is running on the pcb described here: https://github.com/pcb-pico-datalogger
 HAVE_SD      = False               # The PCB has an sd card inserted (or an sd card is connected otherwise)
 HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None

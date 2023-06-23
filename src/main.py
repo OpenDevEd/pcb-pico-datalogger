@@ -69,8 +69,10 @@ g_config.import_config()
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
 PIN_DONE = board.GP4   # connect to 74HC74 CLK
-PIN_SDA  = board.GP2   # connect to sensors and RTC via I2C interface
-PIN_SCL  = board.GP3   # connect to sensors and RTC via I2C interface
+PIN_SDA0  = board.GP0   # connect to sensors (alternative bus)
+PIN_SCL0  = board.GP1   # connect to sensors (alternative bus)
+PIN_SDA1  = board.GP2   # connect to sensors and RTC via I2C interface
+PIN_SCL1  = board.GP3   # connect to sensors and RTC via I2C interface
 
 # SD-card interface (SPI)
 PIN_SD_CS   = board.GP22
@@ -110,7 +112,11 @@ class DataCollector():
         g_logger.print("no configuration found in /sd/config.py")
 
     # Initialse i2c bus for use by sensors and RTC
-    i2c1 = busio.I2C(PIN_SCL,PIN_SDA)
+    i2c1 = busio.I2C(PIN_SCL1,PIN_SDA1)
+    if g_config.HAVE_I2C0:
+      i2c0 = busio.I2C(PIN_SCL0,PIN_SDA0)
+    else:
+      i2c0 = None
 
     # If our custom PCB is connected, we have an RTC. Initialise it.
     if g_config.HAVE_PCB:
@@ -154,11 +160,11 @@ class DataCollector():
     self.save_status = "__"
 
     #configure sensors
-    self._configure_sensors(i2c1)
+    self._configure_sensors(i2c0,i2c1)
 
   # --- configure sensors   ---------------------------------------------------
 
-  def _configure_sensors(self,i2c1):
+  def _configure_sensors(self,i2c0,i2c1):
     """ configure sensors """
 
     self._formats = []
@@ -169,7 +175,7 @@ class DataCollector():
     for sensor in g_config.SENSORS.split(' '):
       sensor_module = builtins.__import__(sensor,None,None,[sensor.upper()],0)
       sensor_class = getattr(sensor_module,sensor.upper())
-      _sensor = sensor_class(g_config,None,i2c1,None,None)
+      _sensor = sensor_class(g_config,i2c0,i2c1,None,None)
       self._sensors.append(_sensor.read)
       self._formats.extend(_sensor.formats)
       self.csv_header += f",{_sensor.headers}"
