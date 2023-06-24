@@ -24,6 +24,7 @@ CONT_INT              = 60         #  interval in continuous mode (in seconds)
 HAVE_I2C0    = False               # also use second I2C-bus
 HAVE_PCB     = True                # The Pico is running on the pcb described here: https://github.com/pcb-pico-datalogger
 HAVE_SD      = False               # The PCB has an sd card inserted (or an sd card is connected otherwise)
+CSV_FILENAME = "/sd/log_{ID}_{YMD}.csv"
 HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None
 HAVE_LORA    = False               # Adafruit RFM96W LoRa Radio Transceiver Breakout is avaialble
 

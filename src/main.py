@@ -294,8 +294,11 @@ class DataCollector():
       g_logger.print(self.record)
 
     if g_config.HAVE_SD:
-      YMD = self.data["ts"].split("T")[0]
-      outfile = f"/sd/log_{g_config.LOGGER_ID}_{YMD}.csv"
+      ymd = self.data["ts"].split("T")[0]
+      y,m,d = ymd.split("-")
+      outfile = g_config.CSV_FILENAME.format(
+        ID=g_config.LOGGER_ID,
+        YMD=ymd,Y=y,M=m,D=d)
       new_csv = not self.file_exists(outfile)
       self.save_status = ":("
       with open(outfile, "a") as f:
