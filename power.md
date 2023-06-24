@@ -47,10 +47,33 @@ The results for these sensors (including SD-card and e-ink display):
 
 ![](current-aht20-ltr599-pdm-sd-display.png)
 
-Average current for "on-time" (18secs) is 17.17mA.
+Average current for "on-time" (18secs) is 57.26mA, used energy is
+18/3600*57.26mA = 0.2863mAh.
 
 Same data without the e-ink display:
 
 ![](current-aht20-ltr599-pdm-sd.png)
 
-Average current for "on-time" (6 secs) is 6.8mA.
+Average current for "on-time" (6 secs) is 68,08mA, used energy is
+6/3600*68,08mA = 0.1135mAh.
+
+
+Extrapolated Current Usage
+--------------------------
+
+Four measurements per hour with display: 4*24 = 96 measurements a day
+with a total on time of 96*18 secs = 1728 secs. Off time is 84672 secs.
+
+  - on: 4*24 * 0.2863mAh = 27,4848mAh
+  - off: 84672/3600 * 75µA = 1.764mAh
+
+So per day the needed energy is 29.25mAh
+
+Four measurements per hour without display: 4*24 = 96 measurements a day
+with a total on time of 96*6 secs = 576 secs. Off time is 85824 secs.
+
+  - on: 4*24 * 0.1135mAh = 10.89mAh
+  - off: 85824/3600 * 75µA = 1.788mAh
+
+So per day the needed energy is 12.68mAh.
+
