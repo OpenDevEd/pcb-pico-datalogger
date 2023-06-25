@@ -29,7 +29,7 @@ class BH1750:
         self.bh1750 = adafruit_bh1750.BH1750(i2c1)
     except:
       if i2c0:
-        self.bh1750 = adafruit_bh1750.BH1750(i2c1)
+        self.bh1750 = adafruit_bh1750.BH1750(i2c0)
 
   def read(self,data,values):
     lux = self.bh1750.lux
