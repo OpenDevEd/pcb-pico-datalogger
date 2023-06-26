@@ -21,7 +21,7 @@ import alarm
 import array
 import math
 import os
-import csv
+#import csv
 
 from digitalio import DigitalInOut, Direction, Pull
 from analogio import AnalogIn
@@ -62,6 +62,7 @@ def import_config():
     if var[0] != '_':
       g_logger.print(f"{var}={getattr(config,var)}")
       globals()[var] = getattr(config,var)
+
   config = None
   gc.collect()
 
@@ -81,7 +82,7 @@ PIN_SD_MISO = board.GP16
 
 # PDM-mic
 PIN_PDM_CLK = board.GP5
-PIN_PDM_DAT = board.GP28
+PIN_PDM_DAT = board.GP1
 
 # display interface (SPI, Inky-Pack)
 PIN_INKY_CS   = board.GP17
@@ -107,7 +108,7 @@ class DataCollector():
           serial_number = sensor.serial_number
           return serial_number
       except AttributeError:
-          return None
+          return "no serial number"
     
     # spi - SD-card and display
     if HAVE_SD:
@@ -166,11 +167,11 @@ class DataCollector():
     # sensors
     self.csv_header = f"#ID: {LOGGER_ID}\n#Location: {LOGGER_LOCATION}\n"
     self.csv_header += "#ts"
-    self.csv_serials = "#Serials"
+    self.csv_serials = "#Serials\n"
 
     self._formats = ["Bat:","{0:0.1f}V"]
     self.csv_header += ',Bat V'
-    self.csv_serials += "#Battery,None\n"
+    self.csv_serials += "#Battery no serial number \n"
     self._sensors = [self.read_battery]    # list of readout-methods
     if HAVE_AHT20:
       import adafruit_ahtx0
@@ -179,7 +180,7 @@ class DataCollector():
       self._formats.extend(
         ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"])
       self.csv_header += 'T/AHT °C,H/AHT %rH'
-      self.csv_serials += "#AHT20"+get_serial_number(self.aht20)+"\n"
+      self.csv_serials += "#AHT20 "+get_serial_number(self.aht20)+"\n"
       
       """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
@@ -193,7 +194,7 @@ class DataCollector():
       self._formats.extend(
         ["T/SHT:", "{0:.1f}°C","H/SHT:", "{0:.0f}%rH"])
       self.csv_header += ',T/SHT °C,H/SHT %rH'
-      self.csv_serials += "#SHT45"+get_serial_number(self.sht45)+"\n"
+      self.csv_serials += "#SHT45 "+get_serial_number(self.sht45)+"\n"
       """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["SHT45", get_serial_number(self.sht45)])
@@ -205,7 +206,7 @@ class DataCollector():
       self._sensors.append(self.read_MCP9808)
       self._formats.extend(["T/MCP:", "{0:.1f}°C"])
       self.csv_header += ',T/MCP °C'
-      self.csv_serials += "#MCP9808"+get_serial_number(self.mcp9808)+"\n"
+      self.csv_serials += "#MCP9808 "+get_serial_number(self.mcp9808)+"\n"
       """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["MCP9808", get_serial_number(self.mcp9808)])
@@ -217,7 +218,7 @@ class DataCollector():
       self._sensors.append(self.read_LTR559)
       self._formats.extend(["L/LTR:", "{0:.0f}lx"])
       self.csv_header += ',L/LTR lx'
-      self.csv_serials += "#LTR559"+get_serial_number(self.ltr559)+"\n"
+      self.csv_serials += "#LTR559 "+get_serial_number(self.ltr559)+"\n"
       """with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["LTR559", get_serial_number(self.ltr559)])
       file.close()"""
@@ -228,7 +229,7 @@ class DataCollector():
       self._sensors.append(self.read_bh1745)
       self._formats.extend(["L/bhx5:", "{0:.0f}lx"])
       self.csv_header += ',L/bhx5 lx'
-      self.csv_serials += "#BH1745"+get_serial_number(self.bh1745)+"\n"
+      self.csv_serials += "#BH1745 "+get_serial_number(self.bh1745)+"\n"
       """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["BH1745", get_serial_number( self.bh1745)])
@@ -240,7 +241,7 @@ class DataCollector():
       self._sensors.append(self.read_bh1750)
       self._formats.extend(["L/bhx0:", "{0:.0f}lx"])
       self.csv_header += ',L/bhx0 lx'
-      self.csv_serials += "#BH1750"+get_serial_number(self.bh1750)+"\n"
+      self.csv_serials += "#BH1750 "+get_serial_number(self.bh1750)+"\n"
       """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["BH1750",get_serial_number(self.bh1750)])
@@ -255,7 +256,7 @@ class DataCollector():
       self._formats.extend(["TVOC:", "{0} ppb"])
       self._formats.extend(["eCO2:", "{0} ppm eq."])
       self.csv_header += ',status,AQI,TVOC ppb,eCO2 ppm eq.'
-      self.csv_serials += "#ENS160"+get_serial_number(self.ens160)+"\n"
+      self.csv_serials += "#ENS160 "+get_serial_number(self.ens160)+"\n"
       """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["HAVE_ENS160", get_serial_number(self.ens160)])
@@ -268,7 +269,7 @@ class DataCollector():
       self._sensors.append(self.read_PDM)
       self._formats.extend(["Noise:", "{0:0.0f}"])
       self.csv_header += ',Noise'
-      self.csv_serials += "#Mic"+get_serial_number(self.mic)+"\n"
+      self.csv_serials += "#Mic "+get_serial_number(self.mic)+"\n"
       """#save to csv
       with open(self.csv_serial_numbers, mode='w', newline='') as file:
         writer.writerow(["PDM_MEMS", get_serial_number(self.mic )])
