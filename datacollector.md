@@ -106,6 +106,14 @@ log messages. Various options exist:
 The last option lets you monitor the system even when running on batteries.
 
 
+Admin-Mode
+----------
+
+Administration mode can only be entered during start or reset. When the
+device is powered down, hold SW-A and press the on-button. If running in
+continuous mode, hold SW-A and press the reset-button.
+
+
 Initial RTC-Setup
 -----------------
 
