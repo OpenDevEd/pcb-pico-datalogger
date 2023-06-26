@@ -29,7 +29,7 @@ class LTR559:
         self.ltr559 = Pimoroni_LTR559(i2c1)
     except:
       if i2c0:
-        self.ltr559 = Pimoroni_LTR559(i2c1)
+        self.ltr559 = Pimoroni_LTR559(i2c0)
 
   def read(self,data,values):
     lux = self.ltr559.lux

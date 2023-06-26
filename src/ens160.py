@@ -32,7 +32,7 @@ class ENS160:
         self.ens160 = adafruit_ens160.ENS160(i21)
     except:
       if i2c0:
-        self.ens160 = adafruit_ens160.ENS160(i21)
+        self.ens160 = adafruit_ens160.ENS160(i20)
 
   def read(self,data,values):
     if "aht20" in data:
