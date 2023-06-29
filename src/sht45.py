@@ -15,6 +15,9 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+from log_writer import Logger
+g_logger = Logger()
+
 import adafruit_sht4x
 
 class SHT45:
@@ -25,10 +28,15 @@ class SHT45:
     """ constructor """
     try:
       if i2c1:
+        g_logger.print("testing sht45 on i2c1")
         self.sht45 = adafruit_sht4x.SHT4x(i2c1)
-    except:
+        g_logger.print("detected sht45 on i2c1")
+    except Exception as ex:
+      g_logger.print(f"exception: {ex}")
       if i2c0:
+        g_logger.print("testing sht45 on i2c0")
         self.sht45 = adafruit_sht4x.SHT4x(i2c0)
+        g_logger.print("detected sht45 on i2c0")
 
   def read(self,data,values):
     """ read sensor """

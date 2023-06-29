@@ -19,7 +19,7 @@ import board
 from analogio import AnalogIn
 
 class BATTERY:
-  formats = ["Bat:","{0:0.1f}V"]
+  formats = ["Bat:","{0:0.2f}V"]
   headers = 'Bat V'
 
   def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
@@ -34,4 +34,4 @@ class BATTERY:
     adc.deinit()
     data["battery"] = level
     values.extend([None,level])
-    return f"{level:0.1f}"
+    return f"{level:0.2f}"

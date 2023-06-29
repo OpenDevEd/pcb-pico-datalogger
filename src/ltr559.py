@@ -15,6 +15,9 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+from log_writer import Logger
+g_logger = Logger()
+
 from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
 
 class LTR559:
@@ -26,10 +29,15 @@ class LTR559:
 
     try:
       if i2c1:
+        g_logger.print("testing ltr599 on i2c1")
         self.ltr559 = Pimoroni_LTR559(i2c1)
-    except:
+        g_logger.print("detected ltr599 on i2c1")
+    except Exception as ex:
+      g_logger.print(f"exception: {ex}")
       if i2c0:
+        g_logger.print("testing ltr599 on i2c0")
         self.ltr559 = Pimoroni_LTR559(i2c0)
+        g_logger.print("detected ltr599 on i2c0")
 
   def read(self,data,values):
     lux = self.ltr559.lux

@@ -15,6 +15,9 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+from log_writer import Logger
+g_logger = Logger()
+
 import adadruit_ens160
 
 class ENS160:
@@ -29,10 +32,15 @@ class ENS160:
     """ constructor """
     try:
       if i2c1:
-        self.ens160 = adafruit_ens160.ENS160(i21)
-    except:
+        g_logger.print("testing ens160 on i2c1")
+        self.ens160 = adafruit_ens160.ENS160(i2c1)
+        g_logger.print("detected ens160 on i2c1")
+    except Exception as ex:
+      g_logger.print(f"exception: {ex}")
       if i2c0:
-        self.ens160 = adafruit_ens160.ENS160(i20)
+        g_logger.print("testing ens160 on i2c0")
+        self.ens160 = adafruit_ens160.ENS160(i2c0)
+        g_logger.print("detected ens160 on i2c0")
 
   def read(self,data,values):
     if "aht20" in data:

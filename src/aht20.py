@@ -15,6 +15,9 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+from log_writer import Logger
+g_logger = Logger()
+
 class AHT20:
   formats = ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"]
   headers = 'T/AHT °C,H/AHT %rH'
@@ -24,10 +27,15 @@ class AHT20:
     import adafruit_ahtx0
     try:
       if i2c1:
+        g_logger.print("testing aht20 on i2c1")
         self.aht20 = adafruit_ahtx0.AHTx0(i2c1)
-    except:
+        g_logger.print("detected aht20 on i2c1")
+    except Exception as ex:
+      g_logger.print(f"exception: {ex}")
       if i2c0:
+        g_logger.print("testing aht20 on i2c0")
         self.aht20 = adafruit_ahtx0.AHTx0(i2c0)
+        g_logger.print("detected aht20 on i2c0")
 
   def read(self,data,values):
     """ read sensor """
