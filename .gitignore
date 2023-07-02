@@ -23,6 +23,11 @@ boot_out.txt
 *.pyc
 *secrets.py
 config.py
+log_config.py
 __pycache__
 
 src/.vscode
+.vscode
+BaCkUp
+BaCkUpTaRgZ
+

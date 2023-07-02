@@ -21,31 +21,23 @@ FORCE_STROBE_MODE     = False      # Use strobe mode (with OFF_MINUTES) even whe
 CONT_INT              = 60         #  interval in continuous mode (in seconds)
 
 # hardware setup
-HAVE_PCB     = True       # The Pico is running on the pcb described here: https://github.com/pcb-pico-datalogger
-HAVE_SD      = False      # The PCB has an sd card inserted (or an sd card is connected otherwise)
+HAVE_I2C0    = False               # also use second I2C-bus
+HAVE_PCB     = True                # The Pico is running on the pcb described here: https://github.com/pcb-pico-datalogger
+HAVE_SD      = False               # The PCB has an sd card inserted (or an sd card is connected otherwise)
+CSV_FILENAME = "/sd/log_{ID}_{YMD}.csv"
 HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None
-HAVE_SD      = False
+HAVE_LORA    = False               # Adafruit RFM96W LoRa Radio Transceiver Breakout is avaialble
 
 # hardware configuration settings for sensors
-HAVE_AHT20   = True       # Sense temperature and humidity with an Adafruit AHT20 sensor connected on I2C bus
-HAVE_LTR559  = True       # Sense light level in lux with a Pimoroni LTR-559 sensor connected on I2C bus
-HAVE_MCP9808 = True       # Sense temperature with a Adafruit MCP9808 sensor connected on I2C bus
-HAVE_ENS160  = False      # Sense environmental properties with an ENS160 sensor connected on I2C bus
-HAVE_MIC_PDM_MEMS = True  # Sense noise with a MIC-PDM-MEMS sensor connected via PDMio interface
+SENSORS = "id battery"             # list of sensors. Each needs a <sensor>.py file
 
-# hardware configuration configuration settings - not implemented yet
-HAVE_LORA    = False      # Adafruit RFM96W LoRa Radio Transceiver Breakout is avaialble
-HAVE_SHT45   = False      # Sense temperature and humidity with a SHT45 sensor connected on I2C bus
-HAVE_BH1750  = False      # Sense light level with a BH1750 sensor connected on I2C bus
-HAVE_BH1745  = False      # Sense light level with a BH1745 sensor connected on I2C bus
-HAVE_AM2301B = False      # Sense temperature and humidity with Adafruit AM2301B Wired enclosed shell on I2C bus
-
-# hardware configuration configuration settings - I2S mic not yet supported in Circuitpython
-HAVE_MIC_I2S_MEMS = False # Sense noise with a MIC-I2S-MEMS sensor connected on I2
-
+SHOW_UNITS = False # Show units in the csv output
 
 # Logger identification constants
 LOGGER_NAME  = 'Darasa Kamili'  # Perfect Classroom
 LOGGER_ID    = '000'            # Change this to your logger id
 LOGGER_LOCATION = '6G5X46G4+XQ' # Plus Code for Dar airport
 LOGGER_TITLE = LOGGER_NAME + " " + LOGGER_LOCATION
+
+# font for the display
+FONT_DISPLAY     = 'DejaVuSansMono-Bold-18-subset'

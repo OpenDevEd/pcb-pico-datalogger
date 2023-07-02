@@ -46,7 +46,9 @@ For background on / motivation for this project, please see
 Additional resources
 --------------------
 
-  * [Sensors and Components](components.md)
+  * [Sensors](sensors.md)
+  * [Components](components.md)
+  * [Power](power.md)
   * [Hardware setup](hardware_setup.md)
   * [Pinout](pins.md)
   * Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00
