@@ -596,8 +596,10 @@ while True:
     app.blink(count=BLINK_END, blink_time=BLINK_TIME_END)
 
   if HAVE_DISPLAY:
+    g_logger.print("Should refresh display")
     try:
       app.update_display()
+      g_logger.print("Display should have been refreshed")
     except:
       g_logger.print("exception during update_display()")
       app.cleanup()
