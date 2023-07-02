@@ -32,8 +32,6 @@ import busio
 from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
 
 # imports for the display
-from adafruit_display_text import label
-import terminalio
 import displayio
 import adafruit_display_text, adafruit_display_shapes, adafruit_bitmap_font
 import InkyPack
@@ -68,15 +66,6 @@ class Settings:
 g_config = Settings()
 g_config.import_config()
 
-def displayText(content, line, column):
-    text = content
-    text_area = label.Label(terminalio.FONT, text=text)
-    text_area.x = line
-    text_area.y = column
-    return text_area
-
-
-
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
 PIN_DONE = board.GP4   # connect to 74HC74 CLK
@@ -95,14 +84,15 @@ PIN_SD_MISO = board.GP16
 PIN_INKY_CS   = board.GP17
 PIN_INKY_RST  = board.GP21
 PIN_INKY_DC   = board.GP20
-PIN_INKY_BUSY = None
-FONT_INKY     = 'DejaVuSansMono-Bold-18-subset'
+PIN_INKY_BUSY = board.GP26
+
+# --- main application class   -----------------------------------------------
 
 class DataCollector():
   """ main application class """
 
   # --- hardware-setup   -----------------------------------------------------
-  
+
   def setup(self):
     """ create hardware-objects """
 
@@ -121,87 +111,105 @@ class DataCollector():
       except:
         g_logger.print("no configuration found in /sd/config.py")
 
+    # Initialse i2c bus for use by sensors and RTC
+    i2c1 = busio.I2C(PIN_SCL1,PIN_SDA1)
+    if g_config.HAVE_I2C0:
+      i2c0 = busio.I2C(PIN_SCL0,PIN_SDA0)
+    else:
+      i2c0 = None
+
+    # If our custom PCB is connected, we have an RTC. Initialise it.
+    if g_config.HAVE_PCB:
+      self.rtc = ExtRTC(i2c1,
+        net_update=g_config.NET_UPDATE)         # this will also clear interrupts
+      self.rtc.rtc_ext.high_capacitance = True  # the pcb uses a 12.5pF capacitor
+      self.rtc.update()                         # (time-server->)ext-rtc->int-rtc
+
+    self.done           = DigitalInOut(PIN_DONE)
+    self.done.direction = Direction.OUTPUT
+    self.done.value     = 0
+
+    self.vbus_sense           = DigitalInOut(board.VBUS_SENSE)
+    self.vbus_sense.direction = Direction.INPUT
+
     # display
-    global HAVE_DISPLAY
-    if HAVE_DISPLAY:
+    if g_config.HAVE_DISPLAY:
 
       displayio.release_displays()
 
       # spi - if not already created
-      if not HAVE_SD:
+      if not g_config.HAVE_SD:
         self._spi = busio.SPI(PIN_SD_SCK,PIN_SD_MOSI)
 
-      if HAVE_DISPLAY == "Inky-Pack":
+      if g_config.HAVE_DISPLAY == "Inky-Pack":
         self.display = DisplayFactory.inky_pack(self._spi)
-      elif HAVE_DISPLAY == "Display-Pack":
+      elif g_config.HAVE_DISPLAY == "Display-Pack":
         self.display = DisplayFactory.display_pack(self._spi)
+        self.display.auto_refresh = False
       else:
-        print(f"unsupported display: {HAVE_DISPLAY}")
-        HAVE_DISPLAY = None
+        g_logger.print(f"unsupported display: {g_config.HAVE_DISPLAY}")
+        g_config.HAVE_DISPLAY = None
       self._view = None
- 
-    # sensors
-    self._formats = ["Bat:","{0:0.1f}V"]
-    self._sensors = [self.read_battery]    # list of readout-methods
-    if HAVE_AHT20:
-      import adafruit_ahtx0
-      self.aht20 = adafruit_ahtx0.AHTx0(i2c)
-      self._sensors.append(self.read_AHT20)
-      self._formats.extend(
-        ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"])
-    if HAVE_LTR559:
-      from pimoroni_circuitpython_ltr559 import Pimoroni_LTR559
-      self.ltr559 = Pimoroni_LTR559(i2c)
-      self._sensors.append(self.read_LTR559)
-      self._formats.extend(["L/LTR:", "{0:.1f}lx"])
-    if HAVE_MCP9808:
-      import adafruit_mcp9808
-      self.mcp9808 = adafruit_mcp9808.MCP9808(i2c)
-      self._sensors.append(self.read_MCP9808)
-      self._formats.extend(["T/MCP:", "{0:.1f}°C"])
-    if HAVE_ENS160:
-      import adadruit_ens160
-      self.ens160 = adafruit_ens160.ENS160(i2)
-      self._sensors.append(self.read_ENS160)
-      self._formats.extend(["AQI:", "{0}"])
-      self._formats.extend(["TVOC:", "{0} ppb"])
-      self._formats.extend(["eCO2:", "{0} ppm eq."])
-    if HAVE_MIC_PDM_MEMS:
-      import audiobusio
-      self.mic = audiobusio.PDMIn(PIN_PDM_CLK,PIN_PDM_DAT,
-                                  sample_rate=16000, bit_depth=16)
-      self._sensors.append(self.read_PDM)
-      self._formats.extend(["Noise:", "{0:0.0f}"])
+
 
     # just for testing
     if g_config.TEST_MODE:
       self._led            = DigitalInOut(board.LED)
       self._led.direction  = Direction.OUTPUT
 
-  
-  def displayData(self):
-    display.show(self.g)
-    display.update()
-  
+    self.save_status = "__"
+
+    #configure sensors
+    self._configure_sensors(i2c0,i2c1)
+
+  # --- configure sensors   ---------------------------------------------------
+
+  def _configure_sensors(self,i2c0,i2c1):
+    """ configure sensors """
+
+    self._formats = []
+    self.csv_header = f"#ID: {g_config.LOGGER_ID}\n#Location: {g_config.LOGGER_LOCATION}\n"
+    self.csv_header += "#ts"
+
+    self._sensors = []
+    for sensor in g_config.SENSORS.split(' '):
+      sensor_module = builtins.__import__(sensor,None,None,[sensor.upper()],0)
+      sensor_class = getattr(sensor_module,sensor.upper())
+      _sensor = sensor_class(g_config,i2c0,i2c1,None,None)
+      self._sensors.append(_sensor.read)
+      self._formats.extend(_sensor.formats)
+      self.csv_header += f",{_sensor.headers}"
+
+  # --- create view   ---------------------------------------------------------
+
+  def _create_view(self):
+    """ create data-view """
 
     # guess best dimension
     if len(self._formats) < 5:
       dim = (2,2)
     elif len(self._formats) < 7:
       dim = (3,2)
-    else:
+    elif len(self._formats) < 13:
       dim = (3,4)
+    else:
+      raise Exception("too many sensors")
+
     self._formats.extend(
       ["" for _ in range(dim[0]*dim[1] - len(self._formats))])
+
+    border  = 1
+    divider = 1
+    padding = 5
     self._view = DataView(
       dim=dim,
-      width=self.display.width-2-(dim[1]-1),
+      width=self.display.width-2*border-(dim[1]-1)*divider,
       height=int(0.6*self.display.height),
       justify=Justify.LEFT,
-      fontname=f"fonts/{FONT_INKY}.bdf",
+      fontname=f"fonts/{g_config.FONT_DISPLAY}.bdf",
       formats=self._formats,
-      border=1,
-      divider=1,
+      border=border,
+      divider=divider,
       color=Color.BLACK,
       bg_color=Color.WHITE
     )
@@ -211,12 +219,12 @@ class DataCollector():
       self._view.justify(Justify.RIGHT,index=i+1)
 
     # create DataPanel
-    title = PanelText(text=f"{LOGGER_TITLE}",
-                      fontname=f"fonts/{FONT_INKY}.bdf",
+    title = PanelText(text=f"{g_config.LOGGER_TITLE}",
+                      fontname=f"fonts/{g_config.FONT_DISPLAY}.bdf",
                       justify=Justify.CENTER)
 
     self._footer = PanelText(text=f"Updated: ",
-                             fontname=f"fonts/{FONT_INKY}.bdf",
+                             fontname=f"fonts/{g_config.FONT_DISPLAY}.bdf",
                              justify=Justify.RIGHT)
     self._panel = DataPanel(
       width=self.display.width,
@@ -224,9 +232,9 @@ class DataCollector():
       view=self._view,
       title=title,
       footer=self._footer,
-      border=1,
+      border=border,
       padding=5,
-      justify=Justify.RIGHT,
+      justify=Justify.CENTER,
       color=Color.BLACK,
       bg_color=Color.WHITE
     )
@@ -255,91 +263,25 @@ class DataCollector():
 
     ts = time.localtime()
     ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
-    self.g.append(displayText(" "  + str(ts_str) + " V" , 30, 280))
     self.data = {
       "ts":   ts_str
       }
     self.record = ts_str
 
     self.values = []
-    
-  # --- read battery level   -------------------------------------------------
+    for read_sensor in self._sensors:
+      rec = read_sensor(self.data,self.values)
+      self.record += f",{rec}"
 
-  def read_battery(self):
-    """ read battery level """
+  # --- check if file already exists   --------------------------------------
 
-    adc = AnalogIn(board.VOLTAGE_MONITOR)
-    level = adc.value *  3 * 3.3 / 65535
-    adc.deinit()
-    self.data["battery"] = level
-    self.record += f",{level:0.1f}"
-    self.values.extend([None,level])
-
-  # --- read AHT20   ---------------------------------------------------------
-
-  def read_AHT20(self):
-    t = self.aht20.temperature
-    h = self.aht20.relative_humidity
-    self.data["aht20"] = {
-      "temp": t,
-      "hum":  h
-    }
-    self.record += f",{t:0.1f},{h:0.0f}"
-    self.values.extend([None,t])
-    self.values.extend([None,h])
-
-  # --- read LTR559   --------------------------------------------------------
-
-  def read_LTR559(self):
-    lux = self.ltr559.lux
-    self.data["ltr559"] = {
-      "lux": lux
-    }
-    self.record += f",{lux:0.1f}"
-    self.values.extend([None,lux])
-
-  # --- read MCP9808   -------------------------------------------------------
-
-  def read_MCP9808(self):
-    t = self.mcp9808.temperature
-    self.data["mcp9808"] = {
-      "temp": t
-    }
-    self.record += f",{t:0.1f}"
-    self.values.extend([None,t])
-
-  # --- read PDM-mic    ------------------------------------------------------
-
-  def read_PDM(self):
-    samples = array.array('H', [0] * 160)
-    self.mic.record(samples, len(samples))
-
-    mean_samples = int(sum(samples)/len(samples))
-    sum2_samples = sum(
-        float(sample - mean_samples) * (sample - mean_samples)
-        for sample in samples
-    )
-    mag = math.sqrt(sum2_samples / len(samples))
-    self.data["pdm"] = {
-      "mag": mag
-    }
-    self.record += f",{mag:0.0f}"
-    self.values.extend([None,mag])
-
-  # --- read ENS160   --------------------------------------------------------
-
-  def read_ENS160(self):
-    if HAVE_AHT20:
-      self.ens160.temperature_compensation = self.data["aht20"]["temp"]
-      self.ens160.humidity_compensation    = self.data["aht20"]["hum"]
-    data   = self.ens160.read_all_sensors()
-    status = self.ens160.data_validity
-    self.data["ens160"] = data
-    self.record += f",{status},{data['AQI']},{data['TVOC']},{data['eCO2']}"
-    self.values.extend([None,data['AQI']])
-    self.values.extend([None,data['TVOC']])
-    self.values.extend([None,data['eCO2']])
-
+  def file_exists(self, filename):
+    """ check if file exists """
+    try:
+      status = os.stat(filename)
+      return True
+    except OSError:
+      return False
 
   # --- save data   ----------------------------------------------------------
 
@@ -386,16 +328,21 @@ class DataCollector():
 
   def update_display(self):
     """ update display """
-    self.display.show(self.g)
-    
 
+    gc.collect()
+    if not self._view:
+      self._create_view()
 
-    if TEST_MODE:
-        app.blink(count=5, blink_time=0.5, pause_before=2)
-        
-    
+    # fill in unused cells
+    self.values.extend([None for _ in range(len(self._formats)-len(self.values))])
+
+    self._view.set_values(self.values)
+    dt, ts = self.data['ts'].split("T")
+    self._footer.text = f"at {dt} {ts} {self.save_status}"
+    self.display.root_group = self._panel
     self.display.refresh()
-    print("finished refreshing display")
+    g_logger.print("finished refreshing display")
+
     if not self.continuous_mode():
       time.sleep(3)              # refresh returns before it is finished
 
@@ -468,5 +415,3 @@ while True:
 
 app.configure_wakeup()
 app.shutdown()
-
-
