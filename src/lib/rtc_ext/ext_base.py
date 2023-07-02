@@ -152,10 +152,51 @@ class ExtBase:
       sleep_time += s
     if sleep_time == 0:
       return
-    now = time.localtime()
-    alarm_time = time.localtime(time.mktime(now) + sleep_time)
+    alarm_time = time.localtime(time.time() + sleep_time)
     self.print_ts("next rtc-wakeup",alarm_time)
     return alarm_time
+
+  # --- get alarm from table   ---------------------------------------------
+
+  def get_table_alarm(self,time_table):
+    """ get alarm from time-table.
+        This is a list of daily entries in
+        the form
+          [((h_start,h_end,h_incr),(m_start,m_end,m_incr)),
+           ((h_start,h_end,h_incr),(m_start,m_end,m_incr)),
+           ...
+           ]
+        with one entry per day (starting with Monday==0).
+        Replace (h_start,h_end,h_inc) with None to skip a day.
+    """
+
+    now_epoch = time.time()                          # seconds since 01/01/1970
+    now_ts    = time.localtime(now_epoch)            # struct-time
+    now_day   = ((int(now_epoch/86400)+3) % 7        # 01/01/1970 is Thursday
+    sod       = now_epoch - (now_ts.tm_hour*3600 +   # start of day
+                             now_ts.tm_min*60 +
+                             now_ts.tm_sec)
+
+    # search table (wrap-around, starting from current weekday)
+    for i in range(now_day,now_day+7,1):
+      wd_index = i % 7
+      hours, minutes = time_table[wd_index]
+      if not hours:       # no alarm on given day
+        sod += 86400      # advance start of day
+        continue
+      # iterate over all hours/minutes and find first time-point larger
+      # than now
+      for h in range(*hours):
+        for m in range(*minutes):
+          alarm_epoch = sod + h*3600 + m*60
+          if alarm_epoch > now_epoch:
+            return time.localtime(alarm_epoch)
+
+      # no suitable time-point today. Try next day
+      sod += 86400      # advance start of day
+
+    # we should not be here (no more alarm??)
+    raise Exception("no alarm from time-table")
 
   # --- set alarm   --------------------------------------------------------
 

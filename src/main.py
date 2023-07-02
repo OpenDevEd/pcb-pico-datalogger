@@ -351,7 +351,10 @@ class DataCollector():
   def configure_wakeup(self):
     """ configure rtc for next wakeup """
     if g_config.HAVE_PCB:
-      self.rtc.set_alarm(self.rtc.get_alarm_time(m=g_config.OFF_MINUTES))
+      if hasattr(g_config,"TIME_TABLE"):
+        self.rtc.set_alarm(self.rtc.get_table_alarm(g_config.TIME_TABLE))
+      else:
+        self.rtc.set_alarm(self.rtc.get_alarm_time(m=g_config.OFF_MINUTES))
 
   # --- shutdown   -----------------------------------------------------------
 
