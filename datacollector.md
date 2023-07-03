@@ -76,6 +76,22 @@ Don't forget to remove `secrets.py` after rtc-initialization if you
 want your WLAN-credentials to be secret.
 
 
+CSV-Filename
+------------
+
+The name of the generated csv-file with the data is dynamic. It uses
+the configuration `CSV_FILENAME`, which can contain the following
+placeholders:
+
+  - `{ID}`: the logger-id
+  - `{YMD}`: the date in the format `yyyy-mm-dd`
+  - `{Y}`: the year in the format `yyyy`
+  - `{M}`: the month in the format `mm`
+  - `{D}`: the day in the format `dd`
+
+`CSV_FILENAME` must start with  `/sd/`.
+
+
 Logging
 -------
 
@@ -88,6 +104,14 @@ log messages. Various options exist:
   - output to UART-serial
 
 The last option lets you monitor the system even when running on batteries.
+
+
+Admin-Mode
+----------
+
+Administration mode can only be entered during start or reset. When the
+device is powered down, hold SW-A and press the on-button. If running in
+continuous mode, hold SW-A and press the reset-button.
 
 
 Initial RTC-Setup
