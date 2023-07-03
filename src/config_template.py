@@ -10,7 +10,7 @@
 
 TEST_MODE   = True        # set to FALSE for a production setup
 NET_UPDATE  = True        # update RTC from time-server if time is invalid
-OFF_MINUTES = 1           # turn off for x minutes
+OFF_MINUTES = 1          # turn off for x minutes
 BLINK_TIME_START  = 0.5   # blink time of LED before start of data-collection
 BLINK_TIME_END  = 0.25    # blink time of LED  after finish of data-collection
 BLINK_START = 3           # blink n times before start of data-collection

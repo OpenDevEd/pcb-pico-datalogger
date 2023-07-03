@@ -52,6 +52,7 @@ except:
 # --- default configuration is in config.py on the pico.
 #     You can override it also with a config.py on the sd-card   -------------
 
+
 class Settings:
   def import_config(self):
     """ import config-module and make variables attributes """
@@ -62,6 +63,7 @@ class Settings:
         setattr(self,var,getattr(config,var))
     config = None
     gc.collect()
+
 
 g_config = Settings()
 g_config.import_config()
@@ -80,6 +82,7 @@ PIN_SD_SCK  = board.GP18
 PIN_SD_MOSI = board.GP19
 PIN_SD_MISO = board.GP16
 
+
 # display interface (SPI, Inky-Pack)
 PIN_INKY_CS   = board.GP17
 PIN_INKY_RST  = board.GP21
@@ -95,6 +98,8 @@ class DataCollector():
 
   def setup(self):
     """ create hardware-objects """
+    #creatin csv for sensors serial numbers
+    self.csv_serial_numbers = "sensors_serial_numbers.csv"  
 
     # early setup of SD-card (in case we send debug-logs to sd-card)
     if g_config.HAVE_SD:
@@ -304,6 +309,8 @@ class DataCollector():
       with open(outfile, "a") as f:
         if new_csv:
           f.write(f"{self.csv_header}\n")
+          #write serials
+          f.write(f"{self.csv_serials}\n")
         f.write(f"{self.record}\n")
         self.save_status = "SD"
 
@@ -376,7 +383,6 @@ g_logger.print("main program start")
 if g_config.TEST_MODE:
   time.sleep(5)                        # give console some time to initialize
 g_logger.print("setup of hardware")
-
 app = DataCollector()
 app.setup()
 
@@ -395,9 +401,13 @@ while True:
   if g_config.TEST_MODE:
     app.blink(count=g_config.BLINK_END, blink_time=g_config.BLINK_TIME_END)
 
+
   if g_config.HAVE_DISPLAY:
+
+
     try:
       app.update_display()
+      g_logger.print("Display should have been refreshed")
     except:
       g_logger.print("exception during update_display()")
       app.cleanup()
