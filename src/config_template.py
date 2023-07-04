@@ -20,7 +20,7 @@ OFF_MINUTES = 1           # turn off for x minutes
 
 # time table: one entry per day (starting with Monday)
 #             ((h_start,h_end,h_inc),(m_start,m_end,m_inc))
-# The example has Mo-Fr from 07:00-18:45 every 15 minutes
+# The example has Mo-Fr from 07:00-17:45 every 15 minutes
 #TIME_TABLE = [
 #  ((7,18,1),(0,59,15)),
 #  ((7,18,1),(0,59,15)),
