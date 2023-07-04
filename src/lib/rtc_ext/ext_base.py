@@ -172,10 +172,14 @@ class ExtBase:
 
     now_epoch = time.time()                          # seconds since 01/01/1970
     now_ts    = time.localtime(now_epoch)            # struct-time
-    now_day   = ((int(now_epoch/86400)+3) % 7        # 01/01/1970 is Thursday
+    now_day   = (int(now_epoch/86400)+3) % 7         # 01/01/1970 is Thursday
     sod       = now_epoch - (now_ts.tm_hour*3600 +   # start of day
                              now_ts.tm_min*60 +
                              now_ts.tm_sec)
+
+    self.logger.print("looking up next boot from time-table")
+    self.print_ts("now",now_ts)
+    self.logger.print(f"weekday: {now_day}")
 
     # search table (wrap-around, starting from current weekday)
     for i in range(now_day,now_day+7,1):
@@ -190,12 +194,14 @@ class ExtBase:
         for m in range(*minutes):
           alarm_epoch = sod + h*3600 + m*60
           if alarm_epoch > now_epoch:
-            return time.localtime(alarm_epoch)
+            next_alarm = time.localtime(alarm_epoch)
+            self.print_ts("next alarm",next_alarm)
+            return next_alarm
 
       # no suitable time-point today. Try next day
       sod += 86400      # advance start of day
 
-    # we should not be here (no more alarm??)
+    # we should not be here
     raise Exception("no alarm from time-table")
 
   # --- set alarm   --------------------------------------------------------
