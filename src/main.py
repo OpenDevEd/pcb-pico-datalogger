@@ -143,6 +143,10 @@ class DataCollector():
 
       if g_config.HAVE_DISPLAY == "Inky-Pack":
         self.display = DisplayFactory.inky_pack(self._spi)
+      elif g_config.HAVE_DISPLAY == "Ada-2.13-Mono":
+        self.display = DisplayFactory.ada_2_13_mono(
+          pin_dc=PIN_INKY_DC,pin_cs=PIN_INKY_CS,
+          pin_rst=PIN_INKY_RST,pin_busy=PIN_INKY_BUSY,spi=self._spi)
       elif g_config.HAVE_DISPLAY == "Display-Pack":
         self.display = DisplayFactory.display_pack(self._spi)
         self.display.auto_refresh = False
