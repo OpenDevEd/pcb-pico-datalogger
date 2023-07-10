@@ -41,5 +41,5 @@ class ExtPCF8523(ExtBase):
   def set_alarm(self,alarm_time):
     """ set alarm. Must be implemented by subclass """
 
-    self._rtc_ext.alarm  = (alarm_time,"daily")
+    self._rtc_ext.alarm  = (alarm_time,"monthly")
     self._rtc_ext.alarm_interrupt = True
