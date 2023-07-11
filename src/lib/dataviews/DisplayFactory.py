@@ -25,16 +25,17 @@ class DisplayFactory:
   # --- create SSD1306-based I2C-display   -----------------------------------
 
   @staticmethod
-  def ssd1306(sda=None,scl=None,width=128,height=64,addr=0x3c):
+  def ssd1306(i2c=None,sda=None,scl=None,width=128,height=64,addr=0x3c):
     """ factory-method for SSD1306-based I2C-displays """
 
     from adafruit_displayio_ssd1306 import SSD1306
 
-    if sda is None:
-      sda = board.SDA
-    if scl is None:
-      scl = board.SCL
-    i2c = busio.I2C(sda=sda,scl=scl,frequency=400000)
+    if i2c is None:
+      if sda is None:
+        sda = board.SDA
+      if scl is None:
+        scl = board.SCL
+      i2c = busio.I2C(sda=sda,scl=scl,frequency=400000)
     display_bus = displayio.I2CDisplay(i2c, device_address=addr)
     return SSD1306(display_bus,width=width,height=height)
 
@@ -107,3 +108,22 @@ class DisplayFactory:
       reset=board.GP21, baudrate=1000000
     )
     return InkyPack.InkyPack(display_bus,busy_pin=board.GP26)
+
+  # --- create display for Adafruits Monochrom 2.13" e-ink   ------------------
+
+  @staticmethod
+  def ada_2_13_mono(pin_dc,pin_cs,spi=None,pin_rst=None,pin_busy=None,
+                    rotation=270):
+    """ create display for 2.13 monochrom display """
+
+    import adafruit_ssd1675
+
+    if spi is None:
+      spi = board.SPI()
+
+    display_bus = displayio.FourWire(
+      spi, command=pin_dc, chip_select=pin_cs,
+      reset=pin_rst, baudrate=1000000
+    )
+    return adafruit_ssd1675.SSD1675(display_bus, width=250, height=122,
+                                    busy_pin=pin_busy, rotation=rotation)

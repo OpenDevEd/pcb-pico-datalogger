@@ -148,6 +148,10 @@ class DataCollector():
 
       if g_config.HAVE_DISPLAY == "Inky-Pack":
         self.display = DisplayFactory.inky_pack(self._spi)
+      elif g_config.HAVE_DISPLAY == "Ada-2.13-Mono":
+        self.display = DisplayFactory.ada_2_13_mono(
+          pin_dc=PIN_INKY_DC,pin_cs=PIN_INKY_CS,
+          pin_rst=PIN_INKY_RST,pin_busy=PIN_INKY_BUSY,spi=self._spi)
       elif g_config.HAVE_DISPLAY == "Display-Pack":
         self.display = DisplayFactory.display_pack(self._spi)
         self.display.auto_refresh = False
@@ -358,7 +362,10 @@ class DataCollector():
   def configure_wakeup(self):
     """ configure rtc for next wakeup """
     if g_config.HAVE_PCB:
-      self.rtc.set_alarm(self.rtc.get_alarm_time(m=g_config.OFF_MINUTES))
+      if hasattr(g_config,"TIME_TABLE"):
+        self.rtc.set_alarm(self.rtc.get_table_alarm(g_config.TIME_TABLE))
+      else:
+        self.rtc.set_alarm(self.rtc.get_alarm_time(m=g_config.OFF_MINUTES))
 
   # --- shutdown   -----------------------------------------------------------
 
