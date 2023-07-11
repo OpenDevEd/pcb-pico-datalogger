@@ -16,6 +16,23 @@ BLINK_TIME_END  = 0.25    # blink time of LED  after finish of data-collection
 BLINK_START = 3           # blink n times before start of data-collection
 BLINK_END   = 5           # blink n times after finish of data-collection
 
+NET_UPDATE  = True        # update RTC from time-server if time is invalid
+
+OFF_MINUTES = 1           # turn off for x minutes
+
+# time table: one entry per day (starting with Monday)
+#             ((h_start,h_end,h_inc),(m_start,m_end,m_inc))
+# The example has Mo-Fr from 07:00-17:45 every 15 minutes
+#TIME_TABLE = [
+#  ((7,18,1),(0,59,15)),
+#  ((7,18,1),(0,59,15)),
+#  ((7,18,1),(0,59,15)),
+#  ((7,18,1),(0,59,15)),
+#  ((7,18,1),(0,59,15)),
+#  (None,None),
+#  (None,None)
+#  ]
+
 FORCE_CONT_MODE       = False      # Use continuous mode (with CONT_INT) even when on battery
 FORCE_STROBE_MODE     = False      # Use strobe mode (with OFF_MINUTES) even when on power
 CONT_INT              = 60         #  interval in continuous mode (in seconds)
