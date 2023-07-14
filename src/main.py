@@ -98,8 +98,10 @@ class DataCollector():
 
   def setup(self):
     """ create hardware-objects """
-    #creatin csv for sensors serial numbers
-    self.csv_serial_numbers = "sensors_serial_numbers.csv"  
+
+    if g_config.WRITE_SERIALS:
+      #creatin csv for sensors serial numbers
+      self.csv_serial_numbers = "sensors_serial_numbers.csv"  
 
     # early setup of SD-card (in case we send debug-logs to sd-card)
     if g_config.HAVE_SD:
@@ -188,7 +190,18 @@ class DataCollector():
       self._sensors.append(_sensor.read)
       self._formats.extend(_sensor.formats)
       self.csv_header += f",{_sensor.headers}"
-      self.csv_serial_numbers += 
+      
+      if g_config.WRITE_SERIALS:
+        # Check if the sensor object has the 'serial_number' attribute
+        serial_number = _sensor.serial_number if hasattr(_sensor, 'serial_number') else "No Serial Number"
+        # Store the line for CSV
+        self.csv_serial_numbers.append(f"{sensor},{serial_number}")
+
+    if g_config.WRITE_SERIALS:
+      with open('serial_numbers.csv', 'w') as f:
+        f.write("Sensor ,Serial Number\n")  # Write the header
+        f.write("\n".join(self.csv_serial_numbers))  # Write the sensor data
+
 
   # --- create view   ---------------------------------------------------------
 

@@ -41,6 +41,7 @@ HAVE_SD      = True               # The PCB has an sd card inserted (or an sd ca
 CSV_FILENAME = "/sd/log_{ID}_{YMD}.csv"
 HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None
 HAVE_LORA    = False               # Adafruit RFM96W LoRa Radio Transceiver Breakout is avaialble
+WRITE_SERIALS = False
 
 # hardware configuration settings for sensors
 SENSORS = "id battery aht20 mcp9808 ltr559"             # list of sensors. Each needs a <sensor>.py file
