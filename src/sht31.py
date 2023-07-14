@@ -21,8 +21,8 @@ g_logger = Logger()
 import adafruit_sht31d
 
 class SHT31:
-  formats = ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"]
-  headers = 'T/AHT °C,H/AHT %rH'
+  formats = ["T/A=SHT:", "{0:.1f}°C","H/SHT:", "{0:.0f}%rH"]
+  headers = 'T/SHT °C,H/SHT %rH'
 
   def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
     """ constructor """
