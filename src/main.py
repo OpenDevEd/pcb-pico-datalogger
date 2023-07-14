@@ -188,6 +188,7 @@ class DataCollector():
       self._sensors.append(_sensor.read)
       self._formats.extend(_sensor.formats)
       self.csv_header += f",{_sensor.headers}"
+      self.csv_serial_numbers += 
 
   # --- create view   ---------------------------------------------------------
 
