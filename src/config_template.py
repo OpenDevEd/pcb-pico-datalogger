@@ -55,4 +55,4 @@ LOGGER_LOCATION = '6G5X46G4+XQ' # Plus Code for Dar airport
 LOGGER_TITLE = LOGGER_NAME + " " + LOGGER_LOCATION
 
 # font for the display
-FONT_DISPLAY     = 'DejaVuSansMono-Bold-18-subset'
+FONT_DISPLAY     = 'cherry-10-b.bdf'

@@ -125,6 +125,7 @@ class DataCollector():
     else:
       i2c0 = None
 
+
     # If our custom PCB is connected, we have an RTC. Initialise it.
     if g_config.HAVE_PCB:
       self.rtc = ExtRTC(i2c1,
@@ -214,7 +215,7 @@ class DataCollector():
     elif len(self._formats) < 7:
       dim = (3,2)
     elif len(self._formats) < 13:
-      dim = (3,4)
+      dim = (6,2)
     else:
       raise Exception("too many sensors")
 
@@ -223,11 +224,11 @@ class DataCollector():
 
     border  = 1
     divider = 1
-    padding = 5
+    padding = 0
     self._view = DataView(
       dim=dim,
       width=self.display.width-2*border-(dim[1]-1)*divider,
-      height=int(0.6*self.display.height),
+      height=int(0.8*self.display.height),
       justify=Justify.LEFT,
       fontname=f"fonts/{g_config.FONT_DISPLAY}.bdf",
       formats=self._formats,
@@ -244,11 +245,11 @@ class DataCollector():
     # create DataPanel
     title = PanelText(text=f"{g_config.LOGGER_TITLE}",
                       fontname=f"fonts/{g_config.FONT_DISPLAY}.bdf",
-                      justify=Justify.CENTER)
+                      justify=Justify.LEFT)
 
     self._footer = PanelText(text=f"Updated: ",
                              fontname=f"fonts/{g_config.FONT_DISPLAY}.bdf",
-                             justify=Justify.RIGHT)
+                             justify=Justify.LEFT)
     self._panel = DataPanel(
       width=self.display.width,
       height=self.display.height,
@@ -256,8 +257,8 @@ class DataCollector():
       title=title,
       footer=self._footer,
       border=border,
-      padding=5,
-      justify=Justify.CENTER,
+      padding=1,
+      justify=Justify.LEFT,
       color=Color.BLACK,
       bg_color=Color.WHITE
     )
@@ -363,7 +364,7 @@ class DataCollector():
 
     self._view.set_values(self.values)
     dt, ts = self.data['ts'].split("T")
-    self._footer.text = f"at {dt} {ts} {self.save_status}"
+    self._footer.text = f"{dt} {ts} {self.save_status}"
     self.display.root_group = self._panel
     self.display.refresh()
     g_logger.print("finished refreshing display")
