@@ -216,6 +216,8 @@ class DataCollector():
       dim = (3,2)
     elif len(self._formats) < 13:
       dim = (6,2)
+    elif len(self._formats) < 15:
+      dim = (7,2)
     else:
       raise Exception("too many sensors")
 
