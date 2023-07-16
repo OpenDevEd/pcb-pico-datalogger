@@ -41,7 +41,14 @@ HAVE_PCB     = True                # The Pico is running on the pcb described he
 HAVE_SD      = False               # The PCB has an sd card inserted (or an sd card is connected otherwise)
 CSV_FILENAME = "/sd/log_{ID}_{YMD}.csv"
 HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None
-HAVE_LORA    = False               # Adafruit RFM96W LoRa Radio Transceiver Breakout is avaialble
+
+# Lora
+HAVE_LORA    = False                # Adafruit RFM96W LoRa Radio Transceiver Breakout is avaialble
+NODE_ADDRESS = 1                   # Node address
+BASE_STATION_ADDRESS = 100         # Base statio=n address
+LORA_RANGE_TEST = False            # If this is true, the logger does not undertake the usual functions, but just runs the range test.
+LORA_ENABLE_TIME = 0               # wait time between switching on module and lora device registration
+LORA_WAIT_AFTER_SEND = 0           # wait time after sending
 
 # hardware configuration settings for sensors
 SENSORS = "id battery"             # list of sensors. Each needs a <sensor>.py file
@@ -51,8 +58,11 @@ SHOW_UNITS = False # Show units in the csv output
 # Logger identification constants
 LOGGER_NAME  = 'Darasa Kamili'  # Perfect Classroom
 LOGGER_ID    = '000'            # Change this to your logger id
+# Or, if you have Lora, you can reuse the NODE_ADDRESS:
+# LOGGER_ID    = '00' + str(NODE_ADDRESS)            # Change this to your logger id
 LOGGER_LOCATION = '6G5X46G4+XQ' # Plus Code for Dar airport
 LOGGER_TITLE = LOGGER_NAME + " " + LOGGER_LOCATION
 
 # font for the display
 FONT_DISPLAY     = 'DejaVuSansMono-Bold-18-subset'
+

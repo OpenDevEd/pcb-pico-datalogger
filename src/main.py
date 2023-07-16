@@ -20,12 +20,14 @@ import board
 import alarm
 import os
 import builtins
+import lora_range_test
 
 from digitalio import DigitalInOut, Direction, Pull
 
 # import for SD-card
 import storage
 import adafruit_sdcard
+import lora
 
 # imports for i2c and rtc
 import busio
@@ -40,6 +42,7 @@ from dataviews.DisplayFactory import DisplayFactory
 from dataviews.Base import Color, Justify
 from dataviews.DataView  import DataView
 from dataviews.DataPanel import DataPanel, PanelText
+
 
 # --- early configuration of the log-destination   ---------------------------
 
@@ -62,8 +65,9 @@ class Settings:
         setattr(self,var,getattr(config,var))
     config = None
     gc.collect()
-
+g_logger.print("Starting")
 g_config = Settings()
+g_logger.print("importing config")
 g_config.import_config()
 
 # --- pin-constants (don't change unless you know what you are doing)   ------
@@ -80,11 +84,25 @@ PIN_SD_SCK  = board.GP18
 PIN_SD_MOSI = board.GP19
 PIN_SD_MISO = board.GP16
 
-# display interface (SPI, Inky-Pack)
+# display interface (SPI, Inky-Pack) [Shares SPI with SD card]
 PIN_INKY_CS   = board.GP17
 PIN_INKY_RST  = board.GP21
 PIN_INKY_DC   = board.GP20
 PIN_INKY_BUSY = board.GP26
+
+# Lora interface (SPI, separate)
+PIN_LORA_CS   = board.GP9
+PIN_LORA_RST  = board.GP7
+PIN_LORA_EN  = board.GP15
+PIN_LORA_SCK  = board.GP10
+PIN_LORA_MOSI = board.GP11
+PIN_LORA_MISO = board.GP8
+# MISO1 (LoRa)	GP8
+# SCLK1 (LoRa)	GP10
+# MOSI1 (LoRa)	GP11
+# LoRa-RST	GP7
+# LoRa-CS	GP9
+# LoRa-EN	GP15
 
 # --- main application class   -----------------------------------------------
 
@@ -165,6 +183,22 @@ class DataCollector():
 
     #configure sensors
     self._configure_sensors(i2c0,i2c1)
+
+    #configure LoRa
+    g_logger.print(f"Checking lora")
+    if (g_config.HAVE_LORA):
+      g_logger.print(f"we have lora")
+      self._spi1 = busio.SPI(PIN_LORA_SCK,PIN_LORA_MOSI,PIN_LORA_MISO)
+      CS = DigitalInOut(PIN_LORA_CS)
+      RESET = DigitalInOut(PIN_LORA_RST)
+      ENABLE = DigitalInOut(PIN_LORA_EN)
+      ENABLE.direction  = Direction.OUTPUT
+      self.lora = lora.LORA(433.0, self._spi1, CS, RESET, ENABLE)
+      if g_config.TEST_MODE:
+        app.blink(5,0.1)
+        g_logger.print(f"broadcast")
+        self.lora.broadcast()   
+        app.blink(5,0.1)
 
   # --- configure sensors   ---------------------------------------------------
 
@@ -326,7 +360,14 @@ class DataCollector():
 
   def send_data(self):
     """ send data using LORA """
-    g_logger.print(f"not yet implemented!")
+    # g_logger.print(f"not yet implemented!")
+    # payload = self.csv_header + "\n" + self.record
+    payload = self.record
+    self.lora.transmit(payload)
+
+    time.sleep(g_config.LORA_WAIT_AFTER_SEND)
+    app.blink(10,0.1)
+
 
   # --- update display   -----------------------------------------------------
 
@@ -384,41 +425,43 @@ if g_config.TEST_MODE:
   time.sleep(5)                        # give console some time to initialize
 g_logger.print("setup of hardware")
 
-app = DataCollector()
-app.setup()
+if g_config.LORA_RANGE_TEST:
+  lora_range_test.lora_range_test(PIN_LORA_CS,PIN_LORA_RST,PIN_LORA_EN,PIN_LORA_SCK,PIN_LORA_MOSI,PIN_LORA_MISO)
+else:
+  app = DataCollector()
+  app.setup()
+  while True:
+    if g_config.TEST_MODE:
+      app.blink(count=g_config.BLINK_START, blink_time=g_config.BLINK_TIME_START)
 
-while True:
-  if g_config.TEST_MODE:
-    app.blink(count=g_config.BLINK_START, blink_time=g_config.BLINK_TIME_START)
-
-  app.collect_data()
-  try:
-    app.save_data()
-  except:
-    g_logger.print("exception during save_data()")
-    app.cleanup()
-    raise
-    
-  if g_config.TEST_MODE:
-    app.blink(count=g_config.BLINK_END, blink_time=g_config.BLINK_TIME_END)
-
-  if g_config.HAVE_DISPLAY:
+    app.collect_data()
     try:
-      app.update_display()
+      app.save_data()
     except:
-      g_logger.print("exception during update_display()")
+      g_logger.print("exception during save_data()")
       app.cleanup()
       raise
+      
+    if g_config.TEST_MODE:
+      app.blink(count=g_config.BLINK_END, blink_time=g_config.BLINK_TIME_END)
 
-  if g_config.HAVE_LORA:
-    app.send_data()
+    if g_config.HAVE_DISPLAY:
+      try:
+        app.update_display()
+      except:
+        g_logger.print("exception during update_display()")
+        app.cleanup()
+        raise
 
-  # check if running on USB and sleep instead of shutdown
-  if app.continuous_mode():
-    g_logger.print(f"continuous mode: next measurement in {g_config.CONT_INT} seconds")
-    time.sleep(g_config.CONT_INT)
-  else:
-    break
+    if g_config.HAVE_LORA:
+      app.send_data()
 
-app.configure_wakeup()
-app.shutdown()
+    # check if running on USB and sleep instead of shutdown
+    if app.continuous_mode():
+      g_logger.print(f"continuous mode: next measurement in {g_config.CONT_INT} seconds")
+      time.sleep(g_config.CONT_INT)
+    else:
+      break
+
+  app.configure_wakeup()
+  app.shutdown()
