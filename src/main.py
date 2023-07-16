@@ -231,7 +231,8 @@ class DataCollector():
     elif len(self._formats) < 13:
       dim = (3,4)
     else:
-      raise Exception("too many sensors")
+      pass      
+      # raise Exception("too many sensors")
 
     self._formats.extend(
       ["" for _ in range(dim[0]*dim[1] - len(self._formats))])
