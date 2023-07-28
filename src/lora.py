@@ -24,6 +24,29 @@ g_logger = Logger()
 import busio
 import digitalio
 
+
+
+def sendAndWaitForRespond(rfm9x, message, timeout=0.5, attempts=3, keep_listening_value=False):
+    # if tried 3 times (attempts=0) and no response then return false
+    if attempts == 0:
+        g_logger.print("No more attempts no confirm message received in ")
+        return False
+    # Send a message to the base station
+    rfm9x.send(
+        bytes(
+            message, "UTF-8"
+        ),
+        keep_listening=keep_listening_value,
+    )
+    # Wait to receive a packet
+    packet = rfm9x.receive(timeout=timeout)
+    if packet is None:
+        # Packet has not been received retry sending and return result
+        return sendAndWaitForRespond(rfm9x, message,
+                              timeout=0.5, attempts=attempts-1, keep_listening_value=True)
+    # Message has been sent successfully
+    return True
+
 class LORA:
 
   def __init__(self, freq=433.0, spi=None, CS=None, RESET=None, ENABLE=None):
@@ -53,8 +76,10 @@ class LORA:
     # TODO: change this to send_with_ack
 
   def transmit(self, string):
+    return sendAndWaitForRespond(self.rfm9x, string, timeout=0.5, attempts=3, keep_listening_value=True)
+
     # Transmit a UTF-8 formatted string as bytes
-    self.rfm9x.send(bytes(string, "UTF-8"))
+    # self.rfm9x.send(bytes(string, "UTF-8"))
     # TODO: change this to send_with_ack
 
 

@@ -357,7 +357,8 @@ class DataCollector():
       self.lora = lora.LORA(433.0, self._spi1, CS, RESET, ENABLE)
       # payload = self.csv_header + "\n" + self.record
       payload = self.record
-      self.lora.transmit(payload)
+      success= self.lora.transmit(payload)
+      
       time.sleep(g_config.LORA_WAIT_AFTER_SEND)
       app.blink(10,0.1)
     else:
