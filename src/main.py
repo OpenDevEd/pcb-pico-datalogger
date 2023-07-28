@@ -184,22 +184,6 @@ class DataCollector():
     #configure sensors
     self._configure_sensors(i2c0,i2c1)
 
-    #configure LoRa
-    g_logger.print(f"Checking lora")
-    if (g_config.HAVE_LORA):
-      g_logger.print(f"we have lora")
-      self._spi1 = busio.SPI(PIN_LORA_SCK,PIN_LORA_MOSI,PIN_LORA_MISO)
-      CS = DigitalInOut(PIN_LORA_CS)
-      RESET = DigitalInOut(PIN_LORA_RST)
-      ENABLE = DigitalInOut(PIN_LORA_EN)
-      ENABLE.direction  = Direction.OUTPUT
-      self.lora = lora.LORA(433.0, self._spi1, CS, RESET, ENABLE)
-      if g_config.TEST_MODE:
-        app.blink(5,0.1)
-        g_logger.print(f"broadcast")
-        self.lora.broadcast()   
-        app.blink(5,0.1)
-
   # --- configure sensors   ---------------------------------------------------
 
   def _configure_sensors(self,i2c0,i2c1):
@@ -361,13 +345,24 @@ class DataCollector():
 
   def send_data(self):
     """ send data using LORA """
-    # g_logger.print(f"not yet implemented!")
-    # payload = self.csv_header + "\n" + self.record
-    payload = self.record
-    self.lora.transmit(payload)
+    #configure LoRa
+    g_logger.print(f"Checking lora")
+    if (g_config.HAVE_LORA):
+      g_logger.print(f"we have lora")
+      self._spi1 = busio.SPI(PIN_LORA_SCK,PIN_LORA_MOSI,PIN_LORA_MISO)
+      CS = DigitalInOut(PIN_LORA_CS)
+      RESET = DigitalInOut(PIN_LORA_RST)
+      ENABLE = DigitalInOut(PIN_LORA_EN)
+      ENABLE.direction  = Direction.OUTPUT
+      self.lora = lora.LORA(433.0, self._spi1, CS, RESET, ENABLE)
+      # payload = self.csv_header + "\n" + self.record
+      payload = self.record
+      self.lora.transmit(payload)
+      time.sleep(g_config.LORA_WAIT_AFTER_SEND)
+      app.blink(10,0.1)
+    else:
+      g_logger.print(f"No lora")
 
-    time.sleep(g_config.LORA_WAIT_AFTER_SEND)
-    app.blink(10,0.1)
 
 
   # --- update display   -----------------------------------------------------
